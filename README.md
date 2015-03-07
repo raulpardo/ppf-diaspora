@@ -3,8 +3,8 @@
 
 ## Description
 
-This project is trying to implement an privacy enforcement mechanism
-the Diaspora. In particular, we are implementing the privacy policy
+This project is trying to implement a privacy enforcement mechanism to
+Diaspora. In particular, we are implementing the privacy policy
 framework described in [1]. This approach is able to describe
 fine-grained privacy policies and it is able to detect implicit leaks
 of information.
