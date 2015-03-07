@@ -4,10 +4,16 @@
 ## Description
 
 This project is trying to implement an privacy enforcement mechanism
-the Diaspora*. In particular, we are implementing the privacy policy
+the Diaspora. In particular, we are implementing the privacy policy
 framework described in [1]. This approach is able to describe
 fine-grained privacy policies and it is able to detect implicit leaks
-of information. It is still a work in progress project.
+of information.
+
+It is still a work in progress project. We are testing the feasibility
+of our approach in a real social network as Diaspora. Since a privacy
+mechanism as the one described in [1] could have some limitations in a
+production environment. If efficiently implemented, we would like to
+contribute to the main Diaspora project.
 
 ## References
 
