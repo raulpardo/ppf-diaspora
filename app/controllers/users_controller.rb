@@ -164,6 +164,11 @@ class UsersController < ApplicationController
     redirect_to edit_user_path
   end
 
+  # Added by me
+  def protect_location
+    puts("I'm protecting your location")
+  end
+
   private
 
   def user_params
