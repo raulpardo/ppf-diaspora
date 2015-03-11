@@ -102,13 +102,15 @@ Diaspora::Application.routes.draw do
     get :export_photos
   end
 
+  post '/user/set_privacy_policies', to: 'users#set_privacy_policies', :as => 'set_privacy_policies'
+
   controller :users do
     get 'public/:username'          => :public,           :as => 'users_public'
     match 'getting_started'         => :getting_started,  :as => 'getting_started'
     match 'privacy'                 => :privacy_settings, :as => 'privacy_settings'
     get 'getting_started_completed' => :getting_started_completed
     get 'confirm_email/:token'      => :confirm_email,    :as => 'confirm_email'
-  end
+  end  
 
   # This is a hack to overide a route created by devise.
   # I couldn't find anything in devise to skip that route, see Bug #961

@@ -27,14 +27,23 @@
         = link_to t('.stop_ignoring'), block_path(block),
           :method => :delete
 
+      / %h3
+      /   = "Privacy policies"      
+      / = form_for current_user, :url => user_path, :html => {:method => :put} do |f|
+      /   = f.error_messages
+
+      /   = f.label :getting_started, :class => "checkbox" do
+      /     = f.check_box :getting_started
+      /     = "Nobody can disclose my location"
+      /   .small-horizontal-spacer
+      /   = f.submit "Change", :class => "btn"
+      
       %h3
         = "Privacy policies"
-      = form_for current_user, :url => user_path, :html => {:method => :put} do |f|
-        = f.error_messages
-
-        = f.label :show_community_spotlight_in_stream, :class => "checkbox" do
-          = f.check_box :show_community_spotlight_in_stream
-          = "Nobody can disclose my location"
-        .small-horizontal-spacer
-        = f.submit "Change", :class => "btn"
+      = form_tag '/user/set_privacy_policies' do
+        = check_box_tag :protect_location
+        = "Nobody can know my location"
+        %br
+        %br
+        = submit_tag 'Save changes', :class => "btn"
     .span3

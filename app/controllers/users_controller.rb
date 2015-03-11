@@ -165,8 +165,20 @@ class UsersController < ApplicationController
   end
 
   # Added by me
-  def protect_location
-    puts("I'm protecting your location")
+  def set_privacy_policies
+    # if :protect_location is equal to 1 it means that it was marked, if
+    # :protect_location is empty it means that is was not    
+    puts("I'm protecting your location") if params[:protect_location]
+
+    # Informing the user XD
+    if params[:protect_location]
+      flash[:notice] = "Diaspora is protecting your location" 
+    else 
+      flash[:notice] = "Diaspora is NOT protecting your location"
+    end
+
+    # We go back to the privacy page
+    redirect_to '/privacy'
   end
 
   private
