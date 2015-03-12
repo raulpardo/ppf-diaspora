@@ -23,6 +23,17 @@ class UsersController < ApplicationController
 
   def privacy_settings
     @blocks = current_user.blocks.includes(:person)
+
+    # Added by me
+    @protect_loc = PrivacyPolicy.where(:user_id => current_user.id, :shareable_type => "Location").count
+    
+    if @protect_loc == 1      
+      @protecting_location = true
+    else      
+      @protecting_location = false
+    end
+    # Added by me
+    
   end
 
   def update
@@ -167,13 +178,30 @@ class UsersController < ApplicationController
   # Added by me
   def set_privacy_policies
     # if :protect_location is equal to 1 it means that it was marked, if
-    # :protect_location is empty it means that is was not    
-    puts("I'm protecting your location") if params[:protect_location]
+    # :protect_location is empty it means that is was not
 
-    # Informing the user XD
+    # Informing the user and storing the decision of protecting his/her
+    # location
     if params[:protect_location]
-      flash[:notice] = "Diaspora is protecting your location" 
-    else 
+      @user = current_user
+
+      @policyTemp = PrivacyPolicy.where(:user_id => @user.id,
+                                        :shareable_type => "Location").first
+      if @policyTemp != nil
+        flash[:notice] = "Diaspora is already protecting your location"
+      else
+        @policy = PrivacyPolicy.new(:user_id => @user.id,
+                                    :shareable_type => "Location")
+        @policy.save
+        flash[:notice] = "Diaspora is protecting your location"
+      end
+
+    # Removing the policy in case it was activated and informing user
+    else
+      @user = current_user
+      @policy = PrivacyPolicy.where(:user_id => @user.id,
+                                    :shareable_type => "Location").first
+      @policy.destroy if @policy != nil
       flash[:notice] = "Diaspora is NOT protecting your location"
     end
 
