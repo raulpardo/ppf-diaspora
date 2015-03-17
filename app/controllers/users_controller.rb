@@ -10,7 +10,9 @@ class UsersController < ApplicationController
 
   use_bootstrap_for :getting_started
 
-  respond_to :html
+  respond_to :html 
+
+  include Kbl
 
   def edit
     @aspect = :user_edit
@@ -21,7 +23,7 @@ class UsersController < ApplicationController
     end
   end
 
-  def privacy_settings
+  def privacy_settings    
     @blocks = current_user.blocks.includes(:person)
 
     # Added by me
@@ -33,7 +35,11 @@ class UsersController < ApplicationController
       @protecting_location = false
     end
     # Added by me
-    
+
+    # Testing the kbl module
+    @pred = Kbl::Ment.new("Gerardito", "Raulito")
+    puts(@pred.to_s)
+
   end
 
   def update

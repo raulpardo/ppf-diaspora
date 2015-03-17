@@ -37,9 +37,55 @@ class Stream::Base
 
   # @return [Array<Post>]
   def stream_posts
+    # Temporal array which will contain the posts which can be shown
+    returningArray = Array.new
+
+    # -------- Original code -------------
     self.posts.for_a_stream(max_time, order, self.user).tap do |posts|
       like_posts_for_stream!(posts) #some sql person could probably do this with joins.
+    # -------- Original code -------------
+
+      # We iterate over all to posts which tentatively will be posted
+      posts.each do |p|
+        # If the author of the post is not the user accessing the post we
+        # proceed to check if (s)he has access to all of them
+        if p.author_id != self.user.id 
+          # Since we are only protecting the user's location if the post does
+          # not contain a location can be shown
+          if p.address == nil
+            returningArray.push(p)
+          # Otherwise we proceed to check
+          else
+            # We get all the users mentioned in the post
+            ppl = Diaspora::Mentionable.people_from_string(p.text)
+            # We set a counter to 0
+            count = 0
+            # We iterate over all the mentioned users
+            ppl.each do |person|
+              # We check the privacy policy about the location of the user
+              protecting_loc = PrivacyPolicy.where(:user_id => person.id,
+                                                   :shareable_type => "Location").first            
+              # If we get any result it means that the users is protecting her
+              # location
+              if protecting_loc != nil
+                # Therefore we increment the count
+                count = count + 1
+              end
+            end
+            # Finally if there were no users protecting their location we add
+            # the post to the posts to be shown
+            if count == 0            
+              returningArray.push(p)
+            end
+          end
+        # If the author of the post is the one checking it we added to the
+        # resulset since this user already knows the information.
+        else
+          returningArray.push(p)
+        end
+      end
     end
+    returningArray
   end
 
   # @return [ActiveRecord::Association<Person>] AR association of people within stream's given aspects

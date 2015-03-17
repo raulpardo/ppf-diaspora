@@ -44,6 +44,9 @@ class StatusMessage < Post
     joins(:mentions).where(:mentions => {:person_id => person.id})
   }
 
+  # Allowed so that we can hide the address in some cases
+  attr_accessor :address
+
   def self.guids_for_author(person)
     Post.connection.select_values(Post.where(:author_id => person.id).select('posts.guid').to_sql)
   end

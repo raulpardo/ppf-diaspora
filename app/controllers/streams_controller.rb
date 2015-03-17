@@ -26,7 +26,7 @@ class StreamsController < ApplicationController
     stream_responder(Stream::Activity)
   end
 
-  def multi
+  def multi      
       stream_responder(Stream::Multi)
   end
 

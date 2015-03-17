@@ -54,7 +54,7 @@ module EvilQuery
       Rails.logger.debug("[EVIL-QUERY] make_relation!")
       post_ids = aspects_post_ids! + ids!(followed_tags_posts!) + ids!(mentioned_posts)
       post_ids += ids!(community_spotlight_posts!) if @include_spotlight
-      Post.where(:id => post_ids)
+      Post.where(:id => post_ids)      
     end
 
     def aspects_post_ids!
