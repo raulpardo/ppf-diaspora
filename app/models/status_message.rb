@@ -164,6 +164,12 @@ class StatusMessage < Post
     location.try(:address)
   end
 
+  # Added by me
+  def eraseAddress    
+    p.location = nil
+  end
+  # Added by me
+
   protected
   def presence_of_content
     if text_and_photos_blank?

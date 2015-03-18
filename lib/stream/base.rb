@@ -49,7 +49,7 @@ class Stream::Base
       posts.each do |p|
         # If the author of the post is not the user accessing the post we
         # proceed to check if (s)he has access to all of them
-        if p.author_id != self.user.id 
+        if p.author_id != self.user.id
           # Since we are only protecting the user's location if the post does
           # not contain a location can be shown
           if p.address == nil
@@ -66,15 +66,19 @@ class Stream::Base
               protecting_loc = PrivacyPolicy.where(:user_id => person.id,
                                                    :shareable_type => "Location").first            
               # If we get any result it means that the users is protecting her
-              # location
-              if protecting_loc != nil
+              # location. And (&&) also we check that the user requesting the
+              # post is not the one mentioned
+              if (protecting_loc != nil) && (person.id != self.user.id)
                 # Therefore we increment the count
+                # pTemp = p.dup
+                # pTemp.eraseAddress
                 count = count + 1
+                # returningArray.push(pTemp)
               end
             end
             # Finally if there were no users protecting their location we add
             # the post to the posts to be shown
-            if count == 0            
+            if count == 0
               returningArray.push(p)
             end
           end

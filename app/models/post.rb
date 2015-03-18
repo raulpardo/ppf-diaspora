@@ -73,7 +73,7 @@ class Post < ActiveRecord::Base
   end
 
   def poll
-  end
+  end  
 
   def self.excluding_blocks(user)
     people = user.blocks.map{|b| b.person_id}
@@ -95,7 +95,7 @@ class Post < ActiveRecord::Base
   end
 
   def self.excluding_hidden_content(user)
-    excluding_blocks(user).excluding_hidden_shareables(user)
+     excluding_blocks(user).excluding_hidden_shareables(user)
   end
 
   def self.for_a_stream(max_time, order, user=nil)
@@ -103,7 +103,7 @@ class Post < ActiveRecord::Base
       includes_for_a_stream
 
     scope = scope.excluding_hidden_content(user) if user.present?
-    
+
     scope
   end
 
