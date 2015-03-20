@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150312093245) do
+ActiveRecord::Schema.define(:version => 20150318174214) do
 
   create_table "account_deletions", :force => true do |t|
     t.string  "diaspora_handle"
@@ -368,6 +368,9 @@ ActiveRecord::Schema.define(:version => 20150312093245) do
     t.string   "shareable_type"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
+    t.integer  "allowed_aspect"
+    t.boolean  "block"
+    t.boolean  "hide"
   end
 
   create_table "profiles", :force => true do |t|

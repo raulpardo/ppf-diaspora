@@ -17,7 +17,67 @@
 
   .row-fluid
     .span3
-    .span5
+    .span5      
+      %h3
+        = "Privacy policies"
+      = form_tag '/user/set_privacy_policies' do
+        -# Location policy section
+        %h4
+          %u 
+            = "Protect Location"
+        = check_box_tag :protect_location, 'yes', @protecting_location
+        = "Protect my location"
+        %br
+        = check_box_tag :hide_location, 'yes', @hide_location
+        = "Hide post to unauthorised users"
+        %br
+        = check_box_tag :block_location, 'yes', @block_location
+        = "Block post to unauthorised users"
+        %br
+        %br
+        = "Protect location agains the following aspects"
+        = select_tag 'location_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_location), {:multiple => :multiple, :size => @aspects.size + 1}
+        %br
+
+        -# Pictures policy section
+        %h4
+          %u 
+            = "Protect Pictures"
+        = check_box_tag :protect_pics, 'yes', @protect_pics
+        = "Protect my pictures"
+        %br
+        = check_box_tag :hide_pics, 'yes', @hide_pics
+        = "Hide post to unauthorised users"
+        %br
+        = check_box_tag :block_pics, 'yes', @block_pics
+        = "Block post to unauthorised users"
+        %br
+        %br
+        = "Protect pictures agains the following aspects"
+        = select_tag 'pics_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_pics), {:multiple => :multiple, :size => @aspects.size + 1}
+        %br
+
+        -# Mentions policy section
+        %h4
+          %u 
+            = "Protect Mentions"
+        = check_box_tag :protect_mentions, 'yes', @protect_mentions
+        = "Protect posts in which I am mentioned"
+        %br
+        = check_box_tag :hide_mentions, 'yes', @hide_mentions
+        = "Hide post to unauthorised users"
+        %br
+        = check_box_tag :block_mentions, 'yes', @block_mentions
+        = "Block post to unauthorised users"
+        %br
+        = "Protect mentions agains the following aspects"
+        = select_tag 'mentions_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_mentions), {:multiple => :multiple, :size => @aspects.size + 1}
+        %br
+
+
+        %br
+        = submit_tag 'Save changes', :class => "btn"
+
       %h3
         = t('.ignored_users')
 
@@ -27,23 +87,4 @@
         = link_to t('.stop_ignoring'), block_path(block),
           :method => :delete
 
-      / %h3
-      /   = "Privacy policies"      
-      / = form_for current_user, :url => user_path, :html => {:method => :put} do |f|
-      /   = f.error_messages
-
-      /   = f.label :getting_started, :class => "checkbox" do
-      /     = f.check_box :getting_started
-      /     = "Nobody can disclose my location"
-      /   .small-horizontal-spacer
-      /   = f.submit "Change", :class => "btn"
-      
-      %h3
-        = "Privacy policies"
-      = form_tag '/user/set_privacy_policies' do
-        = check_box_tag :protect_location, 'yes', @protecting_location
-        = "Nobody can know my location"
-        %br
-        %br
-        = submit_tag 'Save changes', :class => "btn"
     .span3

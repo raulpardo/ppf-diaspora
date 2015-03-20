@@ -24,23 +24,88 @@ class UsersController < ApplicationController
   end
 
   def privacy_settings    
-    @blocks = current_user.blocks.includes(:person)
+    @blocks = current_user.blocks.includes(:person) 
+    @aspects = Aspect.where(:user_id => current_user.id)
+
 
     # Added by me
-    @protect_loc = PrivacyPolicy.where(:user_id => current_user.id, :shareable_type => "Location").count
-    
-    if @protect_loc == 1      
+    location_policy = PrivacyPolicy.where(:user_id => current_user.id, 
+                                          :shareable_type => "Location", 
+                                          :allowed_aspect => nil).first
+
+    if location_policy != nil
       @protecting_location = true
-    else      
+      @protected_location = [-1]
+      @hide_location = location_policy[:hide]
+      @block_location = location_policy[:block]
+    else
       @protecting_location = false
     end
-    # Added by me
 
+
+    
     # Testing the kbl module
     @pred = Kbl::Ment.new("Gerardito", "Raulito")
     puts(@pred.to_s)
 
   end
+
+  # ----------------------------------------- Added by me ----------------------------------------------------
+  def set_privacy_policies
+    # if :protect_location is equal to 1 it means that it was marked, if
+    # :protect_location is empty it means that is was not
+
+    puts("Nothing was selected") if params[:location_aspects] == nil
+
+    # First we take care of the location policies
+
+    # We check that the user checked to protect her/his location to
+    # any of the her/his aspects
+    if params[:location_aspects] != nil
+      # --------------------------- TODO
+      # Now we have to create one row per selected aspect If the user
+
+      # marked "Everyone" we leave the allowed_aspect attribute equal
+      # nil
+    else
+      # --------------------------- TODO
+      # If none of the aspects were selected, the user is allowing
+      # everyone to access (in the audience of the post) to access the
+      # information
+    end
+
+    # Informing the user and storing the decision of protecting his/her
+    # location
+    if params[:protect_location]
+      @user = current_user
+      @policyTemp = PrivacyPolicy.where(:user_id => @user.id,
+                                        :shareable_type => "Location").first
+      if @policyTemp != nil
+        flash[:notice] = "Diaspora is already protecting your location"
+      else
+        @policy = PrivacyPolicy.new(:user_id => @user.id,
+                                    :shareable_type => "Location",
+                                    :block => true, # Take the input from the user
+                                    :hide => true, # Take the input from the user
+                                    :allowed_aspect => nil) # Take the input from the user
+        @policy.save
+        flash[:notice] = "Diaspora is protecting your location"
+      end
+
+    # Removing the policy in case it was activated and informing user
+    else
+      @user = current_user
+      @policy = PrivacyPolicy.where(:user_id => @user.id,
+                                    :shareable_type => "Location").first
+      @policy.destroy if @policy != nil
+      flash[:notice] = "Diaspora is NOT protecting your location"
+    end
+
+    # We go back to the privacy page
+    redirect_to '/privacy'
+  end
+
+  # ----------------------------------------------------------------------------------
 
   def update
     password_changed = false
@@ -179,40 +244,6 @@ class UsersController < ApplicationController
       flash[:error] = I18n.t('users.confirm_email.email_not_confirmed')
     end
     redirect_to edit_user_path
-  end
-
-  # Added by me
-  def set_privacy_policies
-    # if :protect_location is equal to 1 it means that it was marked, if
-    # :protect_location is empty it means that is was not
-
-    # Informing the user and storing the decision of protecting his/her
-    # location
-    if params[:protect_location]
-      @user = current_user
-
-      @policyTemp = PrivacyPolicy.where(:user_id => @user.id,
-                                        :shareable_type => "Location").first
-      if @policyTemp != nil
-        flash[:notice] = "Diaspora is already protecting your location"
-      else
-        @policy = PrivacyPolicy.new(:user_id => @user.id,
-                                    :shareable_type => "Location")
-        @policy.save
-        flash[:notice] = "Diaspora is protecting your location"
-      end
-
-    # Removing the policy in case it was activated and informing user
-    else
-      @user = current_user
-      @policy = PrivacyPolicy.where(:user_id => @user.id,
-                                    :shareable_type => "Location").first
-      @policy.destroy if @policy != nil
-      flash[:notice] = "Diaspora is NOT protecting your location"
-    end
-
-    # We go back to the privacy page
-    redirect_to '/privacy'
   end
 
   private
