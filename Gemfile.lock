@@ -110,10 +110,7 @@ GEM
       warden (~> 1.2.3)
     devise_lastseenable (0.0.4)
       devise
-      devise
       rails (>= 3.0.4)
-      rails (>= 3.0.4)
-      warden
       warden
     diff-lcs (1.2.5)
     eco (1.0.0)
@@ -553,3 +550,6 @@ DEPENDENCIES
   webmock (= 1.18.0)
   will_paginate (= 3.0.5)
   zip-zip
+
+BUNDLED WITH
+   1.10.6
