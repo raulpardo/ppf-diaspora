@@ -13,7 +13,9 @@ class StatusMessagesController < ApplicationController
              :mobile,
              :json
 
-  layout 'application', only: :bookmarklet
+  include Privacy
+
+  layout 'application', only: :bookmarklet  
 
   # Called when a user clicks "Mention" on a profile page
   # @param person_id [Integer] The id of the person to be mentioned
@@ -70,41 +72,30 @@ class StatusMessagesController < ApplicationController
 
 
     # ------------------------ Added by me!!!!! ------------------------
-    
-    # Counting how many people had a privacy policy violated
-    @violatedPeopleCount = 0
 
-    # Since we are only enforcing the policies related to location, we first
-    # check if a location is present in the status_message
-    if params[:location_address].present?
+    puts(current_user.username.to_s + " is posting")    
 
-      # Getting the people mentioned in the post
-      ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
+    larva_monitor = true; # enable disable communication to LARVA monitor
 
-      # Temporal variables for accounting the people who have a privacy policy
-      # violated
-      @policyViolation = "You are violating the privacy of "
-      @violatedPeopleCount = 0
+    checker = Privacy::Checker.new
+    @violatedPeopleCount = checker.checkPolicies(params)
 
-      # Loop through all the mentioned people 
-      ppl.each do |p|
-        # Query to the database checking if the wanted their location to be
-        # protected
-        @protecting_loc = PrivacyPolicy.where(:user_id => p.id,
-                                              :shareable_type => "Location").first
-
-        # If we get a row, it means that the policy is going to be violated
-        # since they are mentioned in a status message containing a location
-        if @protecting_loc != nil
-          @policyViolation = @policyViolation + "[ " + p.diaspora_handle + " ]"    
-          @violatedPeopleCount = @violatedPeopleCount + 1
+    # Debugging - Check the user that had a violation of the policy
+    if @violatedPeopleCount > 0
+      puts @violatedPeopleCount.to_s + " policies violated"
+    else
+      # ------------- COMMUNICATION WITH LARVA -------------------------
+      # if larva_monitor then
+      if larva_monitor && params[:location_address].present? then
+        policy_handler = Privacy::Checker.new
+        ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
+        ppl.each do |p|
+          policy_handler.send_to_larva(p.id)
         end
+      else
+        puts "The communication to the LARVA monitor is disabled"
       end
-
-      # Debugging - Check the user that had a violation of the policy
-      if @violatedPeopleCount > 0
-        puts(@policyViolation)
-      end
+      # ------------- COMMUNICATION WITH LARVA -------------------------
     end
     # ------------------------ Added by me!!!!! ------------------------    
 

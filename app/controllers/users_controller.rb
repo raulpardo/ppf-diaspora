@@ -10,7 +10,7 @@ class UsersController < ApplicationController
 
   use_bootstrap_for :getting_started
 
-  respond_to :html 
+  respond_to :html
 
   include Kbl
 
@@ -22,15 +22,15 @@ class UsersController < ApplicationController
       @email_prefs[pref.email_type] = false
     end
   end
-
-  def privacy_settings    
-    @blocks = current_user.blocks.includes(:person) 
+  
+  def privacy_settings
+    @blocks = current_user.blocks.includes(:person)
     @aspects = Aspect.where(:user_id => current_user.id)
 
 
-    # Added by me
-    location_policy = PrivacyPolicy.where(:user_id => current_user.id, 
-                                          :shareable_type => "Location", 
+    # ------------- Added by me ---------------
+    location_policy = PrivacyPolicy.where(:user_id => current_user.id,
+                                          :shareable_type => "Location",
                                           :allowed_aspect => nil).first
 
     if location_policy != nil
@@ -43,7 +43,21 @@ class UsersController < ApplicationController
     end
 
 
-    
+    mentions_policy = PrivacyPolicy.where(:user_id => current_user.id,
+                                          :shareable_type => "Mentions",
+                                          :allowed_aspect => nil).first
+
+    if mentions_policy != nil
+      @protecting_mentions = true
+      @protected_mentions = [-1]
+      @hide_mentions = mentions_policy[:hide]
+      @block_mentions = mentions_policy[:block]
+    else
+      @protect_location = false
+    end
+    # ------------- Added by me ---------------
+
+
     # Testing the kbl module
     @pred = Kbl::Ment.new("Gerardito", "Raulito")
     puts(@pred.to_s)
@@ -74,38 +88,65 @@ class UsersController < ApplicationController
       # information
     end
 
+    message_to_show = ""
+
     # Informing the user and storing the decision of protecting his/her
     # location
     if params[:protect_location]
-      @user = current_user
-      @policyTemp = PrivacyPolicy.where(:user_id => @user.id,
-                                        :shareable_type => "Location").first
-      if @policyTemp != nil
-        flash[:notice] = "Diaspora is already protecting your location"
-      else
-        @policy = PrivacyPolicy.new(:user_id => @user.id,
-                                    :shareable_type => "Location",
-                                    :block => true, # Take the input from the user
-                                    :hide => true, # Take the input from the user
-                                    :allowed_aspect => nil) # Take the input from the user
-        @policy.save
-        flash[:notice] = "Diaspora is protecting your location"
-      end
-
+      message_to_show = add_policy("Location",
+                                   params[:block_location],
+                                   params[:hide_location])
     # Removing the policy in case it was activated and informing user
     else
-      @user = current_user
-      @policy = PrivacyPolicy.where(:user_id => @user.id,
-                                    :shareable_type => "Location").first
-      @policy.destroy if @policy != nil
-      flash[:notice] = "Diaspora is NOT protecting your location"
+      message_to_show = delete_policy("Location")
     end
+
+    # Informing and storing user about protecting his/her mentions
+    if params[:protect_mentions]
+      message_to_show = message_to_show + " & " + add_policy("Mentions",
+                                                             params[:block_mentions],
+                                                             params[:hide_mentions])
+    else
+      message_to_show = message_to_show + " & " + delete_policy("Mentions")
+    end
+
+    flash[:notice] = message_to_show
 
     # We go back to the privacy page
     redirect_to '/privacy'
   end
 
-  # ----------------------------------------------------------------------------------
+  # Auxiliary function to add privacy policies to the database
+  # TODO: Move this method to an external library file
+  def add_policy(shareable, to_block, to_hide)
+    return_message = ""
+    user = current_user
+    policyTemp = PrivacyPolicy.where(:user_id => user.id,
+                                     :shareable_type => shareable).first
+      if policyTemp != nil
+        return_message = "Diaspora is already protecting your " + shareable
+      else
+        policy = PrivacyPolicy.new(:user_id => user.id,
+                                   :shareable_type => shareable,
+                                   :block => to_block == "yes" ? 1 : 0, # Take the input from the user
+                                   :hide => to_hide == "yes" ? 1 : 0, # Take the input from the user
+                                   :allowed_aspect => nil) # Take the input from the user
+        policy.save
+        return_message = "Diaspora is protecting your " + shareable
+      end
+    return return_message
+  end
+
+  # Auxiliary function to delete privacy policies from the database
+  # TODO: Move this method to an external library file
+  def delete_policy(shareable)
+    user = current_user
+    policy = PrivacyPolicy.where(:user_id => user.id,
+                                  :shareable_type => shareable).first
+    policy.destroy if policy != nil
+    return "Diaspora is *NOT* protecting your " + shareable
+  end
+
 
   def update
     password_changed = false
@@ -244,6 +285,11 @@ class UsersController < ApplicationController
       flash[:error] = I18n.t('users.confirm_email.email_not_confirmed')
     end
     redirect_to edit_user_path
+  end
+
+  # Added by me
+  def protect_location
+    puts("I'm protecting your location")
   end
 
   private
