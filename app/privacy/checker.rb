@@ -44,6 +44,7 @@ module Privacy
       ppl.each do |p|
         # Query to the database checking if the wanted their location to be
         # protected
+
         protecting_loc = PrivacyPolicy.where(:user_id => p.id,
                                              :shareable_type => "Location").first
 
