@@ -23,7 +23,7 @@ module Privacy
       mentioned_people = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
 
       mentioned_people.each do |p|
-        protect_ment = PrivacyPolicy.where(:user_id => p.id,
+        protect_ment = PrivacyPolicy.where(:user_id => p.owner_id,
                                            :shareable_type => "Mentions").first
         if protect_ment != nil
           violations = violations + 1
@@ -44,7 +44,7 @@ module Privacy
       ppl.each do |p|
         # Query to the database checking if the wanted their location to be
         # protected
-        protecting_loc = PrivacyPolicy.where(:user_id => p.id,
+        protecting_loc = PrivacyPolicy.where(:user_id => p.owner_id,
                                              :shareable_type => "Location").first
 
         # If we get a row, it means that the policy is going to be violated
