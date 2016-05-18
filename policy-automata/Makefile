@@ -1,5 +1,5 @@
-LARVA="/home/ubuntu/larva-system/"
-JAVA_VERSION=1.7
+LARVA="/home/pardo/larva-system/"
+JAVA_VERSION=1.8
 CURRENT:=$(shell pwd)
 
 compile: 

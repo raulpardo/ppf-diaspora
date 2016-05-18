@@ -110,6 +110,15 @@ class UsersController < ApplicationController
       message_to_show = message_to_show + " & " + delete_policy("Mentions")
     end
 
+    if params[:evolving_location]
+      #Start automaton
+      puts "Starting larva automaton..."
+      Thread.new{
+        system("sudo aj5 -cp policy-automata/ SocketServerPackage.EchoServer 7")
+      }
+      puts "Automaton running"
+    end
+
     flash[:notice] = message_to_show
 
     # We go back to the privacy page

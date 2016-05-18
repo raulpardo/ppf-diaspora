@@ -75,7 +75,7 @@ class StatusMessagesController < ApplicationController
 
     puts(current_user.username.to_s + " is posting")    
 
-    larva_monitor = false; # enable disable communication to LARVA monitor
+    larva_monitor = true; # enable disable communication to LARVA monitor
     if larva_monitor
       puts "Communication with larva activated"
     else

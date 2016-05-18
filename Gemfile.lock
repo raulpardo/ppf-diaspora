@@ -251,7 +251,7 @@ GEM
     multi_test (0.1.1)
     multi_xml (0.5.5)
     multipart-post (1.2.0)
-    mysql2 (0.3.16)
+    mysql2 (0.3.17)
     nested_form (0.3.2)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -506,7 +506,7 @@ DEPENDENCIES
   messagebus_ruby_api (= 1.0.3)
   mini_magick (= 3.7.0)
   mobile-fu (= 1.2.2)
-  mysql2 (= 0.3.16)
+  mysql2 (= 0.3.17)
   nokogiri (= 1.6.1)
   omniauth (= 1.2.1)
   omniauth-facebook (= 1.6.0)
@@ -552,4 +552,4 @@ DEPENDENCIES
   zip-zip
 
 BUNDLED WITH
-   1.10.6
+   1.12.1

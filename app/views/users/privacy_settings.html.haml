@@ -19,7 +19,7 @@
     .span3
     .span5
       %h3
-        = "Privacy policies"
+        = "Static Privacy policies"
       = form_tag '/user/set_privacy_policies' do
         -# Location policy section
         %h4
@@ -76,9 +76,20 @@
         %br
 
 
+        %h3
+          %u
+            = "Evolving Privacy Policies!"
+        %p
+          = "Your location will not be disclosed more than 3 times in the following 24 hours"
+          
+        = check_box_tag :evolving_location, 'yes', @evolving_location
+        = "Protect my location"
         %br
+        %br
+        %hr
         = submit_tag 'Save changes', :class => "btn"
 
+        %hr
       %h3
         = t('.ignored_users')
 
