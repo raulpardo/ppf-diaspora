@@ -1,0 +1,30 @@
+Imports
+{
+import SocketServerPackage.EchoServer;
+}
+
+Global{
+
+Variables{
+int postCounter = 0;
+}
+
+Events{
+postEvent(s) = {Echoserver.post(String s)}
+}
+
+Property diaspora{
+
+States{
+Starting{start}
+}
+
+Transitions{
+start->start[postEvent\postCounter<3\EchoServer.response("Do nothing");postCounter++;]
+start->start[postEvent\postCounter==3\EchoServer.response("Disable posting");postCounter=0;]
+}
+
+}
+
+}
+

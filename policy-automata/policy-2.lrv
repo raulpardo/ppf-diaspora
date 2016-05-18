@@ -1,0 +1,38 @@
+Imports
+{
+import SocketServerPackage.EchoServer;
+}
+
+Global
+{
+
+
+Variables
+{Clock c;
+boolean enabled = true;
+}
+
+Events{
+   postEvent(s) = {EchoServer.post(String s)}
+
+   clockEvent() = {c@5}
+}
+
+Property diaspora{
+
+States {
+Starting{start}
+}
+
+Transitions{
+start->start[clockEvent\enabled\enabled=false;System.out.println("Monitor being  disabled");c.reset();]
+start->start[clockEvent\\enabled=true;System.out.println("Monitor disabled being enabled");c.reset();]
+start->start[postEvent\enabled\EchoServer.response("Monitor detected: "+s);]
+start->start[postEvent\\EchoServer.response("Monitor disabled");]
+}
+
+}
+
+
+
+}

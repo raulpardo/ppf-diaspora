@@ -1,0 +1,7 @@
+<aspectj>
+<aspects>
+<aspect name="aspects._asp_policy1"/>
+<aspect name="aspects._asp_policy0"/>
+</aspects>
+</aspectj>
+

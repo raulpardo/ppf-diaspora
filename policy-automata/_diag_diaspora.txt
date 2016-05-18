@@ -1,0 +1,10 @@
+digraph _logic_diaspora {
+rankdir=LR;
+node [shape = circle]; start;
+node [shape = point]; _s_s;
+_s_s -> start;
+start -> start [ label = "(1) postEvent\\postCounter < 1 \\EchoServer . response ( \" do-nothing\n \" ) ; postCounter ++ ; "];
+start -> start [ label = "(2) postEvent\\postCounter == 1 \\EchoServer . response ( \" disable-posting\n \" ) ; "];
+start -> start [ label = "(3) clockEvent\\postCounter == 1 \\EchoServer . timer_handler ( user + \" ;enable-posting\n \" ) ; postCounter = 0 ; c . reset ( ) ; "];
+start -> start [ label = "(4) clockEvent\\postCounter < 1 \\EchoServer . timer_handler ( user + \" ;do-nothing\n \" ) ; c . reset ( ) ; "];
+}

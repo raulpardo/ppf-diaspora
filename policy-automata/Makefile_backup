@@ -1,0 +1,13 @@
+LARVA="/home/pardo/LARVA complete package/Larva system/"
+
+compile: 
+	java -cp $(LARVA):. compiler.Compiler ~/socketTesting/policy.lrv -o ~/socketTesting/
+	javac -target 1.7 SocketServerPackage/EchoServer.java 
+	ajc -1.5 -cp aspectjrt.jar:. -sourceroots .
+	ajc -1.5 -cp aspectjrt.jar:. -outxmlfile ./META-INF/aop.xml ./aspects/*.aj
+
+run:
+	sudo aj5 -cp . SocketServerPackage.EchoServer 7
+
+clean:
+	rm -rf META-INF/ larva/ aspects/ output_policy.txt _diag_diaspora.txt
