@@ -69,3 +69,6 @@ dump.rdb
 
 #IDE
 diaspora.iml
+
+#Policy automata
+policy-automata/Makefile
