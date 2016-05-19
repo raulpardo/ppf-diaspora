@@ -77,6 +77,13 @@ module Privacy
               puts "Monday has started for user "+policy.user_id.to_s+" deactivating policies"
               policy_handler.send_to_larva(policy.user_id,"monday")
             end
+
+            # Alternative to the 3 times per day, without timers
+            # #If it is monday we notify the larva automaton
+            # if time.hour == 0 && time.min == 0
+            #   puts "A new day has started for user "+policy.user_id.to_s+" deactivating policies"
+            #   policy_handler.send_to_larva(policy.user_id,"midnight")
+            # end
           end
           sleep 1 # Delays of 3 seconds to not check to regularly
         end
