@@ -22,7 +22,7 @@ module Privacy
       policy = PrivacyPolicy.where(:user_id => uid,
                                   :shareable_type => shareable).first
       policy.destroy if policy != nil
-      return "Diaspora is *NOT* protecting your " + shareable
+      return "Diaspora is **NOT** protecting your " + shareable
     end
   end
 end
