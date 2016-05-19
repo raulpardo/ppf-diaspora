@@ -53,8 +53,18 @@ class UsersController < ApplicationController
       @hide_mentions = mentions_policy[:hide]
       @block_mentions = mentions_policy[:block]
     else
-      @protect_location = false
+      @protecting_mentions = false
     end
+
+    evolving_location_policy = PrivacyPolicy.where(:user_id => current_user.id,
+                                                   :shareable_type => "evolving-location",
+                                                   :allowed_aspect => nil).first
+    if evolving_location_policy != nil
+      @evolving_location = true
+    else
+      @evolving_location = false
+    end
+
     # ------------- Added by me ---------------
 
 
@@ -110,13 +120,25 @@ class UsersController < ApplicationController
       message_to_show = message_to_show + " & " + delete_policy("Mentions")
     end
 
-    if params[:evolving_location]
-      #Start automaton
-      puts "Starting larva automaton..."
-      Thread.new{
-        system("sudo aj5 -cp policy-automata/ SocketServerPackage.EchoServer 7")
-      }
-      puts "Automaton running"
+    # !!!!!!Think how to start it once at the beginning and no more times!!!!!!!!!1
+    #Create a handler to add policies to the database
+    handler = Privacy::Handler.new
+    if params[:evolving_location]      
+      #Start automaton (if it wasn't before)
+      if (defined?($larva_running)).nil?
+        puts "Larva was not running, therefore we start it"
+        automaton = Privacy::Automata.new(true)
+        automaton.startLarvaProtocol()
+        #Indicate the larva is running
+        $larva_running = true
+      else
+        puts "Larva was already running, therefore we only add the evolving policy to the database"
+      end
+      #Add the policy to the database
+      handler.add_policy(current_user.id,"evolving-location",0,0)
+    else
+      puts "Deleting location evolving policy of user " + current_user.id.to_s
+      handler.delete_policy("evolving-location",current_user.id)
     end
 
     flash[:notice] = message_to_show

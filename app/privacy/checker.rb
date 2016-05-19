@@ -63,7 +63,7 @@ module Privacy
         sock.write(message)
         sock.close_write
         response = sock.gets
-        puts("Larva response: " + response)
+        puts("[LARVA - REPONSE] message: " + response)
         if response.include? "disable-posting"
           handl = Privacy::Handler.new
           # handl.add_policy(uid,"Mentions","yes","no")
