@@ -110,6 +110,7 @@ class UsersController < ApplicationController
       message_to_show = message_to_show + " & " + delete_policy("Mentions")
     end
 
+    # !!!!!!Think how to start it once at the beginning and no more times!!!!!!!!!1
     if params[:evolving_location]
       #Start automaton
       puts "Starting larva automaton..."
@@ -117,6 +118,34 @@ class UsersController < ApplicationController
         system("sudo aj5 -cp policy-automata/ SocketServerPackage.EchoServer 7")
       }
       puts "Automaton running"
+
+      Thread.new{
+        require 'socket'
+        puts "Starting the socket server for larva..."
+        
+        server = TCPServer.new 3001 # Listenning from port 3001
+
+        loop do
+          Thread.start(server.accept) do |client|
+            message = client.gets # Waiting for the message from the client
+            puts "Clients message: " + message.to_s
+            if message.include? "enable-posting"
+              #Structure of the message '<user_id>;<action>'
+              values = message.split(";")
+              uid = values.at(0).to_i
+
+              handl = Privacy::Handler.new
+              # handl.delete_policy("Mentions",uid)
+              handl.delete_policy("Location",uid)
+
+              puts "Enabling mentions for user " + uid.to_s
+            end
+
+            client.puts message # Sending the answer
+            client.close # Closing the connection
+          end
+        end
+      }
     end
 
     flash[:notice] = message_to_show

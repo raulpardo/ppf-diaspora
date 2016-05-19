@@ -95,7 +95,7 @@ class StatusMessagesController < ApplicationController
         policy_handler = Privacy::Checker.new
         ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
         ppl.each do |p|
-          policy_handler.send_to_larva(p.id)
+          policy_handler.send_to_larva(p.owner_id)
         end
       else
         puts "The communication to the LARVA monitor is disabled"
