@@ -56,19 +56,25 @@ module Privacy
       return violatedPeopleCount
     end # checkLocationPolicy function
 
-    def send_to_larva(uid)
+    def send_to_larva(uid,event)
       Thread.new{
         sock = TCPSocket.new('localhost',7)
-        message = "diaspora;" + uid.to_s + ";post\n"
+        message = "diaspora;" + uid.to_s + ";"+event+"\n"
         sock.write(message)
         sock.close_write
         response = sock.gets
         puts("[LARVA - REPONSE] message: " + response)
+        handl = Privacy::Handler.new
         if response.include? "disable-posting"
-          handl = Privacy::Handler.new
-          # handl.add_policy(uid,"Mentions","yes","no")
           handl.add_policy(uid,"Location","yes","no")
           puts "Blocking mentions for user " + uid.to_s
+        end
+        if response.include? "enable-posting"
+          #Structure of the message '<user_id>;<action>'
+          values = response.split(";")
+          uid = values.at(0).to_i
+          handl.delete_policy("Location",uid)
+          puts "Enabling mentions for user " + uid.to_s
         end
         sock.close
       }

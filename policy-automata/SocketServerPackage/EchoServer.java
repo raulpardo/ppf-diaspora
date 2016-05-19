@@ -67,9 +67,18 @@ public class EchoServer {
 		System.out.println("Message receive: " + inputLine);
 		// Structure of the message 'diaspora;<user_id>;<action>'
 		List<String> list = new ArrayList<String>(Arrays.asList(inputLine.split(";")));
-
 		EchoServer a = new EchoServer();
-		a.post(list.get(1).toString(), "nothing");
+		if(list.get(2).toString().equals("post")){
+		    a.post(list.get(1).toString(), "nothing");
+		}
+		
+		if(list.get(2).toString().equals("monday")){
+		    a.monday(list.get(1).toString(), "nothing");
+		}
+
+		if(list.get(2).toString().equals("friday")){
+		    a.friday(list.get(1).toString(), "nothing");
+		}
 	    }
 	}
         } catch (IOException e) {
@@ -80,6 +89,8 @@ public class EchoServer {
     }
 
     public void post(String u, String s) {}
+    public void monday(String u, String s) {}
+    public void friday(String u, String s) {}
 
     public static void response(String s){
 	//timer_handler(s);

@@ -65,6 +65,15 @@ class UsersController < ApplicationController
       @evolving_location = false
     end
 
+    evolving_weekend_policy = PrivacyPolicy.where(:user_id => current_user.id,
+                                                  :shareable_type => "weekend-location",
+                                                  :allowed_aspect => nil).first
+    if evolving_weekend_policy != nil
+      @weekend_location = true
+    else
+      @weekend_location = false
+    end
+
     # ------------- Added by me ---------------
 
 
@@ -124,11 +133,11 @@ class UsersController < ApplicationController
 
     #Create a handler to add policies to the database
     handler = Privacy::Handler.new
-    if params[:evolving_location]      
+    automaton = Privacy::Automata.new(true)
+    if params[:evolving_location] 
       #Start automaton (if it wasn't before)
       if (defined?($larva_running)).nil?
         puts "Larva was not running, therefore we start it"
-        automaton = Privacy::Automata.new(true)
         automaton.startLarvaProtocol()
         #Indicate the larva is running
         $larva_running = true
@@ -140,6 +149,30 @@ class UsersController < ApplicationController
     else
       puts "Deleting location evolving policy of user " + current_user.id.to_s
       handler.delete_policy("evolving-location",current_user.id)
+    end
+
+
+    # TO-DO: Think of how to remove all the repeted code!!!!!!!!!!!!!!!!
+    if params[:weekend_location]      
+      #Start automaton (if it wasn't before)
+      if (defined?($larva_running)).nil?
+        puts "Larva was not running, therefore we start it"
+        automaton.startLarvaProtocol()
+        #Indicate the larva is running
+        $larva_running = true
+      else
+        puts "Larva was already running, therefore we only add the evolving policy to the database"
+      end
+      if (defined?($weekend_running)).nil?
+        automaton.startLarvaWeekendNotifier()
+      else
+        puts "Weekend notifier already running"
+      end
+      #Add the policy to the database
+      handler.add_policy(current_user.id,"weekend-location",0,0)
+    else
+      puts "Deleting weekend-location evolving policy of user " + current_user.id.to_s
+      handler.delete_policy("weekend-location",current_user.id)
     end
 
     flash[:notice] = message_to_show

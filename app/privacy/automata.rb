@@ -55,5 +55,34 @@ module Privacy
         end
       }      
     end
-  end
-end
+
+    
+    def startLarvaWeekendNotifier()
+      #This thread will check from the Diaspora side the time so that the automaton does not have to use a clock.
+      puts "Starting the weekend notifier"
+      Thread.new{
+        policy_handler = Privacy::Checker.new
+        #It runs forever
+        while true
+          time = Time.new
+          #We retreive all users with the weekend policy activated
+          PrivacyPolicy.where(:shareable_type => "weekend-location").find_each do |policy|
+            #If it is friday we notify the larva automaton
+            if time.sec == 45
+              puts "Friday has started for user "+policy.user_id.to_s+" activating policies"
+              policy_handler.send_to_larva(policy.user_id,"friday")
+            end
+            #If it is monday we notify the larva automaton
+            if time.sec == 15
+              puts "Monday has started for user "+policy.user_id.to_s+" deactivating policies"
+              policy_handler.send_to_larva(policy.user_id,"monday")
+            end
+          end
+          sleep 1 # Delays of 3 seconds to not check to regularly
+        end
+      }
+
+    end
+    
+  end # class
+end # module

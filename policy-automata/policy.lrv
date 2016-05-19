@@ -16,7 +16,9 @@ int postCounter = 0;
 
 Events{
    postEvent(s) = {EchoServer.post(String uid,String s)} where {user = uid;}
-
+   fridayEvent(s) = {EchoServer.friday(String uid,String s)} where {user = uid;}
+   mondayEvent(s) = {EchoServer.monday(String uid,String s)} where {user = uid;}
+   
    clockEvent() = {c@40} %% After 40 seconds it allows to mention the user again
 }
 
@@ -27,13 +29,26 @@ Starting{start}
 }
 
 Transitions{
-start->start[postEvent\postCounter<1\EchoServer.response("do-nothing\n");postCounter++;]
-start->start[postEvent\postCounter==1\EchoServer.response("disable-posting\n");]
-start->start[clockEvent\postCounter==1\EchoServer.timer_handler(user+";enable-posting\n");postCounter=0;c.reset();]
-start->start[clockEvent\postCounter<1\EchoServer.timer_handler(user+";do-nothing\n");c.reset();]
+	start->start[postEvent\postCounter<1\EchoServer.response("do-nothing\n");postCounter++;]
+	start->start[postEvent\postCounter==1\EchoServer.response("disable-posting\n");]
+	start->start[clockEvent\postCounter==1\EchoServer.timer_handler(user+";enable-posting\n");postCounter=0;c.reset();]
+	start->start[clockEvent\postCounter<1\EchoServer.timer_handler(user+";do-nothing\n");c.reset();]
 } %% Transitions
 
-} %% End Property
+} %% End Property - diaspora
+
+Property weekend{
+
+States{
+Starting{start}
+}
+
+Transitions{
+	start->start[fridayEvent\\EchoServer.response("disable-posting\n");]
+	start->start[mondayEvent\\EchoServer.response(user+";enable-posting\n");]
+} %% Transitions
+
+} %% End Property - weekend
 
 } %% End Foreach
 

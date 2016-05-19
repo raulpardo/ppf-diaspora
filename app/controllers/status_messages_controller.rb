@@ -101,7 +101,7 @@ class StatusMessagesController < ApplicationController
                                                          :allowed_aspect => nil).first
           if evolving_location_policy != nil
             #If the evolving policy is activated communicate larva
-            policy_handler.send_to_larva(p.owner_id)
+            policy_handler.send_to_larva(p.owner_id,"post")
           end
         end
       else

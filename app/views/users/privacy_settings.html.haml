@@ -17,7 +17,7 @@
 
   .row-fluid
     .span3
-    .span5
+    .span6
       %h3
         = "Static Privacy policies"
       = form_tag '/user/set_privacy_policies' do
@@ -35,7 +35,8 @@
         = "Block post to unauthorised users"
         %br
         %br
-        = "Protect location agains the following aspects"
+        = "Protect location against the following aspects"
+        %br
         = select_tag 'location_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_location), {:multiple => :multiple, :size => @aspects.size + 1}
         %br
 
@@ -53,7 +54,7 @@
         -# = "Block post to unauthorised users"
         -# %br
         -# %br
-        -# = "Protect pictures agains the following aspects"
+        -# = "Protect pictures against the following aspects"
         -# = select_tag 'pics_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_pics), {:multiple => :multiple, :size => @aspects.size + 1}
         -# %br
 
@@ -71,18 +72,26 @@
         = "Block post to unauthorised users"
         %br
         %br
-        = "Protect mentions agains the following aspects"
+        = "Protect mentions against the following aspects"
+        %br
         = select_tag 'mentions_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_mentions), {:multiple => :multiple, :size => @aspects.size + 1}
         %br
 
 
         %h3
-          %u
-            = "Evolving Privacy Policies!"
+          = "Evolving Privacy Policies!"
         %p
-          = "Your location will not be disclosed more than 3 times in the following 24 hours"
+          = "- Your location will not be disclosed more than 3 times in the following 24 hours"
           
         = check_box_tag :evolving_location, 'yes', @evolving_location
+        = "Protect my location"
+        %br
+        %br
+        %br
+        %p
+          = "- Your location will not be disclosed during the weekend"
+
+        = check_box_tag :weekend_location, 'yes', @weekend_location
         = "Protect my location"
         %br
         %br
