@@ -54,14 +54,24 @@ module Privacy
       return aspects
     end
 
+    # def get_user_disallowed_aspects(uid, shareable)
+    #   location_privacy_policies = PrivacyPolicy.where(:user_id => uid,
+    #                                                   :shareable_type => shareable)
+    #   if location_privacy_policies.collect{|pp| pp.allowed_aspect}.include? -1
+    #     return [-1]
+    #   else
+    #     aspects = get_user_aspect_ids(uid)
+    #     return aspects.collect{|a| a if !location_privacy_policies.collect{|pp| pp.allowed_aspect}.include? a}
+    #   end
+    # end
     def get_user_disallowed_aspects(uid, shareable)
       location_privacy_policies = PrivacyPolicy.where(:user_id => uid,
                                                       :shareable_type => shareable)
       if location_privacy_policies.collect{|pp| pp.allowed_aspect}.include? -1
         return [-1]
       else
-        aspects = get_user_aspect_ids(uid)
-        return aspects.collect{|a| a if !location_privacy_policies.collect{|pp| pp.allowed_aspect}.include? a}
+        # aspects = get_user_aspect_ids(uid)
+        return location_privacy_policies.collect{|pp| pp.allowed_aspect}
       end
     end
   end

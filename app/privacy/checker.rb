@@ -45,7 +45,7 @@ module Privacy
         # since they are mentioned in a status message containing a location
         if protecting_loc.collect { |pl| pl.allowed_aspect }.include? -1
           violatedPeopleCount = violatedPeopleCount + 1
-        elsif params[:status_message][:aspect_ids].include? 'public'
+        elsif params[:status_message][:aspect_ids].include?('public') || params[:status_message][:aspect_ids].include?('all_aspects')
           violatedPeopleCount = violatedPeopleCount + 1
         else
           # Otherwise we need to check the aspects which are allowed and nobody outside this audience is included in the post audience
@@ -57,127 +57,27 @@ module Privacy
 
           # We get the ids of the people that the mentioned user allows
           location_pp_user = PrivacyPolicy.where(:user_id => p.owner_id, :shareable_type => shareable)
-          people_allowed = people_from_aspect_ids(location_pp_user.collect{|pp| pp.allowed_aspect})
+          people_disallowed = people_from_aspect_ids(location_pp_user.collect{|pp| pp.allowed_aspect})
           # We add the mentioned person as part of the allowed people
-          people_allowed.push(p.id)
+          # people_allowed.push(p.id)
 
           # Subtract the people to share minus the people allowed
-          people_result = people_to_share - people_allowed
+          # people_result = people_to_share - people_allowed
+          disallowed_people_count = 0
+          people_to_share.each do |pts|
+            if people_disallowed.include? pts
+              disallowed_people_count = disallowed_people_count + 1
+            end
+          end
 
           # If the result is greater than 0, there are people in the audience that are not allowed to see the post
           # therefore, if the block flag is activated we block the posting
-          violatedPeopleCount = violatedPeopleCount + 1 if (people_result.count > 0 && location_pp_user.first.block)
+          # violatedPeopleCount = violatedPeopleCount + 1 if (people_result.count > 0 && location_pp_user.first.block)
+          violatedPeopleCount = violatedPeopleCount + 1 if (disallowed_people_count > 0 && location_pp_user.first.block)
         end
       end # each do loop
       return violatedPeopleCount
     end
-
-    # def checkMentionPolicy(params)
-    #   violations = 0
-    #   mentioned_people = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
-    #
-    #   mentioned_people.each do |p|
-    #     protect_ment = PrivacyPolicy.where(:user_id => p.owner_id,
-    #                                        :shareable_type => "Mentions").first
-    #     if protect_ment != nil
-    #       violations = violations + 1
-    #     end
-    #   end # each do loop of mentioned people
-    #   return violations
-    # end # checkMentionpolicy function
-
-    # def checkLocationPolicy(params)
-    #   # Getting the people mentioned in the post
-    #   ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
-    #
-    #   # Temporal variables for accounting the people who have a privacy policy
-    #   # violated
-    #   violatedPeopleCount = 0
-    #
-    #   # Loop through all the mentioned people
-    #   ppl.each do |p|
-    #     # Query to the database checking if the wanted their location to be
-    #     # protected from everyone
-    #     protecting_loc = PrivacyPolicy.where(:user_id => p.owner_id,
-    #                                          :shareable_type => "Location")
-    #
-    #     return 0 if protecting_loc == nil
-    #     # If we get a row, it means that the policy is going to be violated
-    #     # since they are mentioned in a status message containing a location
-    #     if protecting_loc.collect { |pl| pl.allowed_aspect }.include? -1
-    #       violatedPeopleCount = violatedPeopleCount + 1
-    #     elsif params[:status_message][:aspect_ids].include? 'public'
-    #       violatedPeopleCount = violatedPeopleCount + 1
-    #     else
-    #       # Otherwise we need to check the aspects which are allowed and nobody outside this audience is included in the post audience
-    #
-    #       # We get the ids of the people to whom the post is going to be shared
-    #       people_to_share = people_from_aspect_ids(params[:status_message][:aspect_ids])
-    #       # We add also the author's person id since, this user will obviously know the post
-    #       people_to_share.push(params[:status_message][:author].id)
-    #
-    #       # We get the ids of the people that the mentioned user allows
-    #       location_pp_user = PrivacyPolicy.where(:user_id => p.owner_id, :shareable_type => "Location")
-    #       people_allowed = people_from_aspect_ids(location_pp_user.collect{|pp| pp.allowed_aspect})
-    #       # We add the mentioned person as part of the allowed people
-    #       people_allowed.push(p.id)
-    #
-    #       # Subtract the people to share minus the people allowed
-    #       people_result = people_to_share - people_allowed
-    #
-    #       # If the result is greater than 0, there are people in the audience that are not allowed to see the post
-    #       # therefore, if the block flag is activated we block the posting
-    #       violatedPeopleCount = violatedPeopleCount + 1 if (people_result.count > 0 && location_pp_user.first.block)
-    #     end
-    #   end # each do loop
-    #   return violatedPeopleCount
-    # end # checkLocationPolicy function
-
-    # def checkPicturePolicy(params)
-    #   # Getting the people mentioned in the post
-    #   ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
-    #
-    #   # Temporal variables for accounting the people who have a privacy policy
-    #   # violated
-    #   violatedPeopleCount = 0
-    #
-    #   # Loop through all the mentioned people
-    #   ppl.each do |p|
-    #     # Query to the database checking if the wanted their location to be
-    #     # protected from everyone
-    #     protecting_pics = PrivacyPolicy.where(:user_id => p.owner_id, :shareable_type => "Pictures")
-    #
-    #     return 0 if protecting_pics == nil
-    #     # If we get a row, it means that the policy is going to be violated
-    #     # since they are mentioned in a status message containing a location
-    #     if protecting_pics.collect { |pl| pl.allowed_aspect }.include? -1
-    #       violatedPeopleCount = violatedPeopleCount + 1
-    #     elsif params[:status_message][:aspect_ids].include? 'public'
-    #       violatedPeopleCount = violatedPeopleCount + 1
-    #     else
-    #       # Otherwise we need to check the aspects which are allowed and nobody outside this audience is included in the post audience
-    #
-    #       # We get the ids of the people to whom the post is going to be shared
-    #       people_to_share = people_from_aspect_ids(params[:status_message][:aspect_ids])
-    #       # We add also the author's person id since, this user will obviously know the post
-    #       people_to_share.push(params[:status_message][:author].id)
-    #
-    #       # We get the ids of the people that the mentioned user allows
-    #       picture_pp_user = PrivacyPolicy.where(:user_id => p.owner_id, :shareable_type => "Location")
-    #       people_allowed = people_from_aspect_ids(picture_pp_user.collect{|pp| pp.allowed_aspect})
-    #       # We add the mentioned person as part of the allowed people
-    #       people_allowed.push(p.id)
-    #
-    #       # Subtract the people to share minus the people allowed
-    #       people_result = people_to_share - people_allowed
-    #
-    #       # If the result is greater than 0, there are people in the audience that are not allowed to see the post
-    #       # therefore, if the block flag is activated we block the posting
-    #       violatedPeopleCount = violatedPeopleCount + 1 if (people_result.count > 0 && picture_pp_user.first.block)
-    #     end
-    #   end # each do loop
-    #   return violatedPeopleCount
-    # end # checkPicturePolicy function
 
     def send_to_larva(uid,event)
       Thread.new{
@@ -218,17 +118,17 @@ module Privacy
             handl.add_policy(uid,shareable,"yes","no",-1)
           else
             # puts "Entering..."
-            aspects = handl.get_user_aspect_ids(uid)
+            # aspects = handl.get_user_aspect_ids(uid)
             # puts "Aspects"
             # puts aspects
-            temp = []
-            temp.push(aspect)
-            allowed_aspects = aspects - temp
+            # temp = []
+            # temp.push(aspect)
+            # allowed_aspects = aspects - temp
             # puts "Allowed aspects"
             # puts allowed_aspects
-            allowed_aspects.each do |aa|
-              handl.add_policy(uid,shareable,"yes","no",aa)
-            end
+            # allowed_aspects.each do |aa|
+              handl.add_policy(uid,shareable,"yes","no",aspect)
+            # end
           end
           puts "Blocking mentions for user " + uid.to_s
         end
