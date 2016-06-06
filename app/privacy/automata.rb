@@ -30,7 +30,7 @@ module Privacy
       Thread.new{
         require 'socket'
         puts "Starting the socket server for larva..."
-        
+
         server = TCPServer.new 3001 # Listenning from port 3001
 
         loop do
@@ -53,10 +53,10 @@ module Privacy
             client.close # Closing the connection
           end
         end
-      }      
+      }
     end
 
-    
+
     def startLarvaWeekendNotifier()
       #This thread will check from the Diaspora side the time so that the automaton does not have to use a clock.
       puts "Starting the weekend notifier"
@@ -70,12 +70,12 @@ module Privacy
             #If it is friday we notify the larva automaton
             if time.sec == 45
               puts "Friday has started for user "+policy.user_id.to_s+" activating policies"
-              policy_handler.send_to_larva(policy.user_id,"friday")
+              policy_handler.send_to_larva(policy.user_id,"friday","Pictures",policy.allowed_aspect)
             end
             #If it is monday we notify the larva automaton
             if time.sec == 15
               puts "Monday has started for user "+policy.user_id.to_s+" deactivating policies"
-              policy_handler.send_to_larva(policy.user_id,"monday")
+              policy_handler.send_to_larva(policy.user_id,"monday","Pictures",policy.allowed_aspect)
             end
 
             # Alternative to the 3 times per day, without timers
@@ -90,6 +90,6 @@ module Privacy
       }
 
     end
-    
+
   end # class
 end # module

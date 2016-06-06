@@ -15,7 +15,7 @@ class StatusMessagesController < ApplicationController
 
   include Privacy
 
-  layout 'application', only: :bookmarklet  
+  layout 'application', only: :bookmarklet
 
   # Called when a user clicks "Mention" on a profile page
   # @param person_id [Integer] The id of the person to be mentioned
@@ -73,7 +73,7 @@ class StatusMessagesController < ApplicationController
 
     # ------------------------ Added by me!!!!! ------------------------
 
-    puts(current_user.username.to_s + " is posting")    
+    puts(current_user.username.to_s + " is posting")
 
     larva_monitor = true; # enable disable communication to LARVA monitor
     if larva_monitor
@@ -98,10 +98,10 @@ class StatusMessagesController < ApplicationController
           #Check whether the user has an evolving policy activated
           evolving_location_policy = PrivacyPolicy.where(:user_id => p.owner_id,
                                                          :shareable_type => "evolving-location",
-                                                         :allowed_aspect => nil).first
+                                                         :allowed_aspect => -1).first
           if evolving_location_policy != nil
             #If the evolving policy is activated communicate larva
-            policy_handler.send_to_larva(p.owner_id,"post")
+            policy_handler.send_to_larva(p.owner_id,"post","Location",-1)
           end
         end
       else
@@ -109,7 +109,7 @@ class StatusMessagesController < ApplicationController
       end
       # ------------- COMMUNICATION WITH LARVA -------------------------
     end
-    # ------------------------ Added by me!!!!! ------------------------    
+    # ------------------------ Added by me!!!!! ------------------------
 
     # If nobody's privacy policies were violated then the creation of the
     # status message continues as usual

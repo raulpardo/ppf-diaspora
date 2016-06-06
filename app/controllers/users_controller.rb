@@ -22,43 +22,110 @@ class UsersController < ApplicationController
       @email_prefs[pref.email_type] = false
     end
   end
-  
+
   def privacy_settings
     @blocks = current_user.blocks.includes(:person)
     @aspects = Aspect.where(:user_id => current_user.id)
+    handler = Privacy::Handler.new
 
 
     # ------------- Added by me ---------------
-    location_policy = PrivacyPolicy.where(:user_id => current_user.id,
-                                          :shareable_type => "Location",
-                                          :allowed_aspect => nil).first
+    # Get all the location privacy policies of the user
+    location_privacy_policies = PrivacyPolicy.where(:user_id => current_user.id, :shareable_type => "Location")
 
-    if location_policy != nil
+    # Check whether location must be protected
+    @protecting_location = false
+
+    # Get the blocking and hiding flag from the first row (all row will have the same, TODO makes it per policy basis)
+    pp = location_privacy_policies.first
+    if pp != nil
       @protecting_location = true
-      @protected_location = [-1]
-      @hide_location = location_policy[:hide]
-      @block_location = location_policy[:block]
-    else
-      @protecting_location = false
+      @block_location = pp.block
+      @hide_location = pp.hide
+
+
+      # Get all disallowed aspects
+      disallowed_aspects = handler.get_user_disallowed_aspects(current_user.id, "Location")
+      @protected_location = []
+      disallowed_aspects.each do |da|
+        @protected_location.push(da)
+      end
     end
 
+    # location_policy = PrivacyPolicy.where(:user_id => current_user.id,
+    #                                       :shareable_type => "Location",
+    #                                       :allowed_aspect => nil).first
+    #
+    # if location_policy != nil
+    #   @protecting_location = true
+    #   @protected_location = [-1]
+    #   @hide_location = location_policy[:hide]
+    #   @block_location = location_policy[:block]
+    # else
+    #   @protecting_location = false
+    # end
 
-    mentions_policy = PrivacyPolicy.where(:user_id => current_user.id,
-                                          :shareable_type => "Mentions",
-                                          :allowed_aspect => nil).first
 
-    if mentions_policy != nil
+    # mentions_policy = PrivacyPolicy.where(:user_id => current_user.id,
+    #                                       :shareable_type => "Mentions",
+    #                                       :allowed_aspect => nil).first
+    #
+    # if mentions_policy != nil
+    #   @protecting_mentions = true
+    #   @protected_mentions = [-1]
+    #   @hide_mentions = mentions_policy[:hide]
+    #   @block_mentions = mentions_policy[:block]
+    # else
+    #   @protecting_mentions = false
+    # end
+
+    # Adding information about Mentions privacy policies
+    mention_privacy_policies = PrivacyPolicy.where(:user_id => current_user.id, :shareable_type => "Mentions")
+
+    # Check whether location must be protected
+    @protecting_mentions = false
+
+    # Get the blocking and hiding flag from the first row (all row will have the same, TODO makes it per policy basis)
+    pp = mention_privacy_policies.first
+    if pp != nil
       @protecting_mentions = true
-      @protected_mentions = [-1]
-      @hide_mentions = mentions_policy[:hide]
-      @block_mentions = mentions_policy[:block]
-    else
-      @protecting_mentions = false
+      @block_mentions = pp.block
+      @hide_mentions = pp.hide
+
+
+      # Get all disallowed aspects
+      disallowed_aspects = handler.get_user_disallowed_aspects(current_user.id, "Mentions")
+      @protected_mentions = []
+      disallowed_aspects.each do |da|
+        @protected_mentions.push(da)
+      end
+    end
+
+    # Adding information about Pictures privacy policies
+    pictures_privacy_policies = PrivacyPolicy.where(:user_id => current_user.id, :shareable_type => "Pictures")
+
+    # Check whether location must be protected
+    @protecting_pics = false
+
+    # Get the blocking and hiding flag from the first row (all row will have the same, TODO makes it per policy basis)
+    pp = pictures_privacy_policies.first
+    if pp != nil
+      @protecting_pics = true
+      @block_pics = pp.block
+      @hide_pics = pp.hide
+
+
+      # Get all disallowed aspects
+      disallowed_aspects = handler.get_user_disallowed_aspects(current_user.id, "Pictures")
+      @protected_pics = []
+      disallowed_aspects.each do |da|
+        @protected_pics.push(da)
+      end
     end
 
     evolving_location_policy = PrivacyPolicy.where(:user_id => current_user.id,
                                                    :shareable_type => "evolving-location",
-                                                   :allowed_aspect => nil).first
+                                                   :allowed_aspect => -1).first
     if evolving_location_policy != nil
       @evolving_location = true
     else
@@ -66,13 +133,21 @@ class UsersController < ApplicationController
     end
 
     evolving_weekend_policy = PrivacyPolicy.where(:user_id => current_user.id,
-                                                  :shareable_type => "weekend-location",
-                                                  :allowed_aspect => nil).first
-    if evolving_weekend_policy != nil
-      @weekend_location = true
-    else
+                                                  :shareable_type => "weekend-location")
+    if evolving_weekend_policy.blank?
       @weekend_location = false
+    else
+      @weekend_location = true
+      @weekend_pics = []
+      evolving_weekend_policy.each do |wa|
+        @weekend_pics.push(wa.allowed_aspect)
+      end
     end
+    # if evolving_weekend_policy != nil
+    #   @weekend_location = true
+    # else
+    #   @weekend_location = false
+    # end
 
     # ------------- Added by me ---------------
 
@@ -90,51 +165,120 @@ class UsersController < ApplicationController
 
     puts("Nothing was selected") if params[:location_aspects] == nil
 
+    # Create a privacy handler to add or remove privacy policies
+    handler = Privacy::Handler.new
+
     # First we take care of the location policies
 
     # We check that the user checked to protect her/his location to
     # any of the her/his aspects
     if params[:location_aspects] != nil
       # --------------------------- TODO
-      # Now we have to create one row per selected aspect If the user
+      # First we remove all rows regarding the location policy
+      handler.reset_policies("Location",current_user.id)
+      # Now we have to create one row per selected aspect
 
-      # marked "Everyone" we leave the allowed_aspect attribute equal
-      # nil
+      # We take the aspects which have access to the location
+      ## First we get all the aspects ids of the user
+      aspects = handler.get_user_aspect_ids(current_user.id)
+      # Finally, we subtract the aspects are not allowed, i.e. the ones selected
+      # in the UI (note that -1 does not appear in the array aspects therefore
+      # it will never be in allowed_aspects)
+      allowed_aspects = aspects.map(&:to_i) - params[:location_aspects].map(&:to_i)
+
+      # We checke whether everyone was selected, and if so we only add that privacy policy
+      if params[:location_aspects].map(&:to_i).include? -1
+        handler.add_policy(current_user.id,"Location",params[:block_location],params[:hide_location],-1)
+      else
+        # Otherwise, for each allowed aspect we add a privacy policy
+        allowed_aspects.each do |p|
+          handler.add_policy(current_user.id,"Location",params[:block_location],params[:hide_location],p)
+        end
+      end
     else
       # --------------------------- TODO
       # If none of the aspects were selected, the user is allowing
       # everyone to access (in the audience of the post) to access the
-      # information
+      # information, therefore we remove all privacy policies
+      handler.reset_policies("Location",current_user.id)
     end
 
-    message_to_show = ""
 
-    # Informing the user and storing the decision of protecting his/her
-    # location
-    if params[:protect_location]
-      message_to_show = add_policy("Location",
-                                   params[:block_location],
-                                   params[:hide_location])
-    # Removing the policy in case it was activated and informing user
-    else
-      message_to_show = delete_policy("Location")
-    end
+
 
     # Informing and storing user about protecting his/her mentions
     if params[:protect_mentions]
-      message_to_show = message_to_show + " & " + add_policy("Mentions",
-                                                             params[:block_mentions],
-                                                             params[:hide_mentions])
+      # --------------------------- TODO
+      # First we remove all rows regarding the location policy
+      handler.reset_policies("Mentions",current_user.id)
+      # Now we have to create one row per selected aspect
+
+      # We take the aspects which have access to the location
+      ## First we get all the aspects ids of the user
+      aspects = handler.get_user_aspect_ids(current_user.id)
+      # Finally, we subtract the aspects are not allowed, i.e. the ones selected
+      # in the UI (note that -1 does not appear in the array aspects therefore
+      # it will never be in allowed_aspects)
+      allowed_aspects = aspects.map(&:to_i) - params[:mentions_aspects].map(&:to_i)
+
+      # We checke whether everyone was selected, and if so we only add that privacy policy
+      if params[:mentions_aspects].map(&:to_i).include? -1
+        handler.add_policy(current_user.id,"Mentions",params[:block_mentions],params[:hide_mentions],-1)
+      else
+        # Otherwise, for each allowed aspect we add a privacy policy
+        allowed_aspects.each do |p|
+          handler.add_policy(current_user.id,"Mentions",params[:block_mentions],params[:hide_mentions],p)
+        end
+      end
     else
-      message_to_show = message_to_show + " & " + delete_policy("Mentions")
+      # --------------------------- TODO
+      # If none of the aspects were selected, the user is allowing
+      # everyone to access (in the audience of the post) to access the
+      # information, therefore we remove all privacy policies
+      handler.reset_policies("Mentions",current_user.id)
     end
+
+    if params[:protect_pics]
+      # --------------------------- TODO
+      # First we remove all rows regarding the location policy
+      handler.reset_policies("Pictures",current_user.id)
+      # Now we have to create one row per selected aspect
+
+      # We take the aspects which have access to the location
+      ## First we get all the aspects ids of the user
+      aspects = handler.get_user_aspect_ids(current_user.id)
+      # Finally, we subtract the aspects are not allowed, i.e. the ones selected
+      # in the UI (note that -1 does not appear in the array aspects therefore
+      # it will never be in allowed_aspects)
+      allowed_aspects = aspects.map(&:to_i) - params[:pics_aspects].map(&:to_i)
+
+      # We checke whether everyone was selected, and if so we only add that privacy policy
+      if params[:pics_aspects].map(&:to_i).include? -1
+        handler.add_policy(current_user.id,"Pictures",params[:block_pics],params[:hide_pics],-1)
+      else
+        # Otherwise, for each allowed aspect we add a privacy policy
+        allowed_aspects.each do |p|
+          handler.add_policy(current_user.id,"Pictures",params[:block_pics],params[:hide_pics],p)
+        end
+      end
+    else
+      # --------------------------- TODO
+      # If none of the aspects were selected, the user is allowing
+      # everyone to access (in the audience of the post) to access the
+      # information, therefore we remove all privacy policies
+      handler.reset_policies("Pictures",current_user.id)
+    end
+
+
 
     # !!!!!!Think how to start it once at the beginning and no more times!!!!!!!!!1
 
-    #Create a handler to add policies to the database
-    handler = Privacy::Handler.new
+    # Create a handler to add policies to the database
+    # Now initialised at the beginning of the method
+
+    # Create an automaton controller
     automaton = Privacy::Automata.new(true)
-    if params[:evolving_location] 
+    if params[:evolving_location]
       #Start automaton (if it wasn't before)
       if (defined?($larva_running)).nil?
         puts "Larva was not running, therefore we start it"
@@ -145,15 +289,16 @@ class UsersController < ApplicationController
         puts "Larva was already running, therefore we only add the evolving policy to the database"
       end
       #Add the policy to the database
-      handler.add_policy(current_user.id,"evolving-location",0,0)
+      handler.add_policy(current_user.id,"evolving-location",0,0,-1)
     else
       puts "Deleting location evolving policy of user " + current_user.id.to_s
       handler.delete_policy("evolving-location",current_user.id)
     end
 
 
+
     # TO-DO: Think of how to remove all the repeted code!!!!!!!!!!!!!!!!
-    if params[:weekend_location]      
+    if params[:weekend_location]
       #Start automaton (if it wasn't before)
       if (defined?($larva_running)).nil?
         puts "Larva was not running, therefore we start it"
@@ -169,11 +314,24 @@ class UsersController < ApplicationController
         puts "Weekend notifier already running"
       end
       #Add the policy to the database
-      handler.add_policy(current_user.id,"weekend-location",0,0)
+      # aspects = handler.get_user_aspect_ids(current_user.id)
+      # allowed_aspects = aspects.map(&:to_i) - params[:weekend_aspects].map(&:to_i)
+
+      # if params[:weekend_aspects].map(&:to_i).include? -1
+      #   handler.add_policy(current_user.id,"weekend-location",0,0,-1)
+      # else
+      #   # Otherwise, for each allowed aspect we add a privacy policy
+      handler.reset_policies("weekend-location",current_user.id)
+      params[:weekend_aspects].each do |a|
+        handler.add_policy(current_user.id,"weekend-location",0,0,a)
+      end
+      # end
     else
       puts "Deleting weekend-location evolving policy of user " + current_user.id.to_s
       handler.delete_policy("weekend-location",current_user.id)
     end
+
+    message_to_show = "Your privacy policies have been successfully updated"
 
     flash[:notice] = message_to_show
 

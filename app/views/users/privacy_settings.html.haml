@@ -40,24 +40,6 @@
         = select_tag 'location_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_location), {:multiple => :multiple, :size => @aspects.size + 1}
         %br
 
-        -# Pictures policy section
-        -# %h4
-        -#   %u
-        -#     = "Protect Pictures"
-        -# = check_box_tag :protect_pics, 'yes', @protecting_pics
-        -# = "Protect my pictures"
-        -# %br
-        -# = check_box_tag :hide_pics, 'yes', @hide_pics
-        -# = "Hide post to unauthorised users"
-        -# %br
-        -# = check_box_tag :block_pics, 'yes', @block_pics
-        -# = "Block post to unauthorised users"
-        -# %br
-        -# %br
-        -# = "Protect pictures against the following aspects"
-        -# = select_tag 'pics_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_pics), {:multiple => :multiple, :size => @aspects.size + 1}
-        -# %br
-
         -# Mentions policy section
         %h4
           %u
@@ -77,22 +59,42 @@
         = select_tag 'mentions_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_mentions), {:multiple => :multiple, :size => @aspects.size + 1}
         %br
 
+        Pictures policy section
+        %h4
+          %u
+            = "Protect Pictures"
+        = check_box_tag :protect_pics, 'yes', @protecting_pics
+        = "Protect my pictures"
+        %br
+        = check_box_tag :hide_pics, 'yes', @hide_pics
+        = "Hide post to unauthorised users"
+        %br
+        = check_box_tag :block_pics, 'yes', @block_pics
+        = "Block post to unauthorised users"
+        %br
+        %br
+        = "Protect pictures against the following aspects"
+        = select_tag 'pics_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_pics), {:multiple => :multiple, :size => @aspects.size + 1}
+        %br
 
         %h3
           = "Evolving Privacy Policies!"
         %p
           = "- Your location will not be disclosed more than 3 times in the following 24 hours"
-          
+
         = check_box_tag :evolving_location, 'yes', @evolving_location
         = "Protect my location"
         %br
         %br
         %br
         %p
-          = "- Your location will not be disclosed during the weekend"
-
+          = "- Your pictures will not be disclosed during the weekend"
         = check_box_tag :weekend_location, 'yes', @weekend_location
-        = "Protect my location"
+        = "Protect my pictures"
+        %br
+        = "Protect pictures during the weekend against the following aspect (only one can be picked)"
+        %br
+        = select_tag 'weekend_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @weekend_pics), {:multiple => false, :size => @aspects.size + 1}
         %br
         %br
         %hr

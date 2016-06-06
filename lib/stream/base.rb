@@ -64,14 +64,12 @@ class Stream::Base
             ppl.each do |person|
               # We check the privacy policy about the location of the user
               protecting_loc = PrivacyPolicy.where(:user_id => person.id,
-                                                   :shareable_type => "Location").first            
+                                                   :shareable_type => "Location").first
               # If we get any result it means that the users is protecting her
               # location. And (&&) also we check that the user requesting the
               # post is not the one mentioned
               if (protecting_loc != nil) && (person.id != self.user.id)
                 # Therefore we increment the count
-                # pTemp = p.dup
-                # pTemp.eraseAddress
                 count = count + 1
                 # returningArray.push(pTemp)
               end
