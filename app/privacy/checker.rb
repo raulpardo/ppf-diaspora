@@ -43,9 +43,10 @@ module Privacy
         return 0 if protecting_loc.blank?
         # If we get a row, it means that the policy is going to be violated
         # since they are mentioned in a status message containing a location
+        puts params[:status_message][:aspect_ids]
         if protecting_loc.collect { |pl| pl.allowed_aspect }.include? -1
           violatedPeopleCount = violatedPeopleCount + 1
-        elsif params[:status_message][:aspect_ids].include? 'public'
+        elsif params[:status_message][:aspect_ids].include?('public') || params[:status_message][:aspect_ids].include?('all_aspects')
           violatedPeopleCount = violatedPeopleCount + 1
         else
           # Otherwise we need to check the aspects which are allowed and nobody outside this audience is included in the post audience
@@ -54,12 +55,16 @@ module Privacy
           people_to_share = people_from_aspect_ids(params[:status_message][:aspect_ids])
           # We add also the author's person id since, this user will obviously know the post
           people_to_share.push(params[:status_message][:author].id)
+          puts "People to share"
+          puts people_to_share
 
           # We get the ids of the people that the mentioned user allows
           location_pp_user = PrivacyPolicy.where(:user_id => p.owner_id, :shareable_type => shareable)
           people_allowed = people_from_aspect_ids(location_pp_user.collect{|pp| pp.allowed_aspect})
           # We add the mentioned person as part of the allowed people
           people_allowed.push(p.id)
+          puts "Allowed people"
+          puts people_allowed
 
           # Subtract the people to share minus the people allowed
           people_result = people_to_share - people_allowed

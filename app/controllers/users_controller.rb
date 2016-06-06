@@ -292,7 +292,7 @@ class UsersController < ApplicationController
       handler.add_policy(current_user.id,"evolving-location",0,0,-1)
     else
       puts "Deleting location evolving policy of user " + current_user.id.to_s
-      handler.delete_policy("evolving-location",current_user.id)
+      handler.reset_policies("evolving-location",current_user.id)
     end
 
 
