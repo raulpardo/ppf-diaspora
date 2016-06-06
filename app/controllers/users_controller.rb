@@ -180,18 +180,18 @@ class UsersController < ApplicationController
 
       # We take the aspects which have access to the location
       ## First we get all the aspects ids of the user
-      aspects = handler.get_user_aspect_ids(current_user.id)
+      # aspects = handler.get_user_aspect_ids(current_user.id)
       # Finally, we subtract the aspects are not allowed, i.e. the ones selected
       # in the UI (note that -1 does not appear in the array aspects therefore
       # it will never be in allowed_aspects)
-      allowed_aspects = aspects.map(&:to_i) - params[:location_aspects].map(&:to_i)
+      # allowed_aspects = aspects.map(&:to_i) - params[:location_aspects].map(&:to_i)
 
       # We checke whether everyone was selected, and if so we only add that privacy policy
       if params[:location_aspects].map(&:to_i).include? -1
         handler.add_policy(current_user.id,"Location",params[:block_location],params[:hide_location],-1)
       else
         # Otherwise, for each allowed aspect we add a privacy policy
-        allowed_aspects.each do |p|
+        params[:location_aspects].map(&:to_i).each do |p|
           handler.add_policy(current_user.id,"Location",params[:block_location],params[:hide_location],p)
         end
       end
@@ -215,18 +215,18 @@ class UsersController < ApplicationController
 
       # We take the aspects which have access to the location
       ## First we get all the aspects ids of the user
-      aspects = handler.get_user_aspect_ids(current_user.id)
+      # aspects = handler.get_user_aspect_ids(current_user.id)
       # Finally, we subtract the aspects are not allowed, i.e. the ones selected
       # in the UI (note that -1 does not appear in the array aspects therefore
       # it will never be in allowed_aspects)
-      allowed_aspects = aspects.map(&:to_i) - params[:mentions_aspects].map(&:to_i)
+      # allowed_aspects = aspects.map(&:to_i) - params[:mentions_aspects].map(&:to_i)
 
       # We checke whether everyone was selected, and if so we only add that privacy policy
       if params[:mentions_aspects].map(&:to_i).include? -1
         handler.add_policy(current_user.id,"Mentions",params[:block_mentions],params[:hide_mentions],-1)
       else
         # Otherwise, for each allowed aspect we add a privacy policy
-        allowed_aspects.each do |p|
+        params[:mentions_aspects].map(&:to_i).each do |p|
           handler.add_policy(current_user.id,"Mentions",params[:block_mentions],params[:hide_mentions],p)
         end
       end
@@ -246,18 +246,18 @@ class UsersController < ApplicationController
 
       # We take the aspects which have access to the location
       ## First we get all the aspects ids of the user
-      aspects = handler.get_user_aspect_ids(current_user.id)
+      # aspects = handler.get_user_aspect_ids(current_user.id)
       # Finally, we subtract the aspects are not allowed, i.e. the ones selected
       # in the UI (note that -1 does not appear in the array aspects therefore
       # it will never be in allowed_aspects)
-      allowed_aspects = aspects.map(&:to_i) - params[:pics_aspects].map(&:to_i)
+      # allowed_aspects = aspects.map(&:to_i) - params[:pics_aspects].map(&:to_i)
 
       # We checke whether everyone was selected, and if so we only add that privacy policy
       if params[:pics_aspects].map(&:to_i).include? -1
         handler.add_policy(current_user.id,"Pictures",params[:block_pics],params[:hide_pics],-1)
       else
         # Otherwise, for each allowed aspect we add a privacy policy
-        allowed_aspects.each do |p|
+        params[:pics_aspects].map(&:to_i).each do |p|
           handler.add_policy(current_user.id,"Pictures",params[:block_pics],params[:hide_pics],p)
         end
       end
@@ -289,6 +289,7 @@ class UsersController < ApplicationController
         puts "Larva was already running, therefore we only add the evolving policy to the database"
       end
       #Add the policy to the database
+      handler.reset_policies("evolving-location",current_user.id)
       handler.add_policy(current_user.id,"evolving-location",0,0,-1)
     else
       puts "Deleting location evolving policy of user " + current_user.id.to_s
