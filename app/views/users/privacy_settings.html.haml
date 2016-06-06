@@ -74,6 +74,7 @@
         %br
         %br
         = "Protect pictures against the following aspects"
+        %br
         = select_tag 'pics_aspects[]', options_for_select(@aspects.collect{|x| [x.name,x.id]}.push(["Everyone", -1]), @protected_pics), {:multiple => :multiple, :size => @aspects.size + 1}
         %br
 
