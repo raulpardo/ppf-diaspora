@@ -43,10 +43,10 @@ module Privacy
         return 0 if protecting_loc.blank?
         # If we get a row, it means that the policy is going to be violated
         # since they are mentioned in a status message containing a location
-        puts params[:status_message][:aspect_ids]
+        puts params[:status_message][:aspect_ids] && protecting_loc.first.block
         if protecting_loc.collect { |pl| pl.allowed_aspect }.include? -1
           violatedPeopleCount = violatedPeopleCount + 1
-        elsif params[:status_message][:aspect_ids].include?('public') || params[:status_message][:aspect_ids].include?('all_aspects')
+        elsif (params[:status_message][:aspect_ids].include?('public') || params[:status_message][:aspect_ids].include?('all_aspects')) && protecting_loc.first.block
           violatedPeopleCount = violatedPeopleCount + 1
         else
           # Otherwise we need to check the aspects which are allowed and nobody outside this audience is included in the post audience
