@@ -63,12 +63,16 @@ class Stream::Base
             # We iterate over all the mentioned users
             ppl.each do |person|
               # We check the privacy policy about the location of the user
-              protecting_loc = PrivacyPolicy.where(:user_id => person.id,
-                                                   :shareable_type => "Location").first
+              protecting_loc = PrivacyPolicy.where(:user_id => person.owner_id,
+                                                   :shareable_type => "Location")
+              checker = Privacy::Checker.new
+              people_disallowed = checker.people_from_aspect_ids(protecting_loc.collect{|pp| pp.allowed_aspect})
               # If we get any result it means that the users is protecting her
               # location. And (&&) also we check that the user requesting the
               # post is not the one mentioned
-              if (protecting_loc != nil) && (person.id != self.user.id)
+              policy = protecting_loc.first
+              if people_disallowed.include? person.id && policy.hide
+              # if (protecting_loc != nil) && (person.owner_id != self.user.id)
                 # Therefore we increment the count
                 count = count + 1
                 # returningArray.push(pTemp)

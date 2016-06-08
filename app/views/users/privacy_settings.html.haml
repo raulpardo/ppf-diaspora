@@ -47,7 +47,7 @@
         = check_box_tag :protect_mentions, 'yes', @protecting_mentions
         = "Protect posts in which I am mentioned"
         %br
-        = check_box_tag :hide_mentions, 'yes', @hide_mentions
+        = check_box_tag :hide_mentions, 'yes', @hide_mentions, {:disabled => true}
         = "Hide post to unauthorised users"
         %br
         = check_box_tag :block_mentions, 'yes', @block_mentions
@@ -66,7 +66,7 @@
         = check_box_tag :protect_pics, 'yes', @protecting_pics
         = "Protect my pictures"
         %br
-        = check_box_tag :hide_pics, 'yes', @hide_pics
+        = check_box_tag :hide_pics, 'yes', @hide_pics, {:disabled => true}
         = "Hide post to unauthorised users"
         %br
         = check_box_tag :block_pics, 'yes', @block_pics
@@ -81,7 +81,7 @@
         %h3
           = "Evolving Privacy Policies!"
         %p
-          = "- Your location will not be disclosed more than 3 times in the following 24 hours"
+          = "- Your location will not be disclosed more than 3 times in the following 24 hours (for testing purposes the policy is currently set to 2 times every 40 seconds)"
 
         = check_box_tag :evolving_location, 'yes', @evolving_location
         = "Protect my location"
@@ -89,7 +89,7 @@
         %br
         %br
         %p
-          = "- Your pictures will not be disclosed during the weekend"
+          = "- Your pictures will not be disclosed during the weekend (for testing purposes we consider that Monday starts at the 15th second of each minute and Friday at the 45th second"
         = check_box_tag :weekend_location, 'yes', @weekend_location
         = "Protect my pictures"
         %br
