@@ -70,8 +70,8 @@ class Stream::Base
               # If we get any result it means that the users is protecting her
               # location. And (&&) also we check that the user requesting the
               # post is not the one mentioned
-              policy = protecting_loc.first
-              if people_disallowed.include? person.id && policy.hide
+              
+              if people_disallowed.include?(self.user.person_id) && protecting_loc.first.hide
               # if (protecting_loc != nil) && (person.owner_id != self.user.id)
                 # Therefore we increment the count
                 count = count + 1
@@ -82,6 +82,8 @@ class Stream::Base
             # the post to the posts to be shown
             if count == 0
               returningArray.push(p)
+            else
+              puts "Not adding the post"
             end
           end
         # If the author of the post is the one checking it we added to the
