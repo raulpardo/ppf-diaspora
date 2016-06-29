@@ -1,18 +1,15 @@
 # PPF - Diaspora*
 
-### NEWS!
+The distributed and open source social network Diaspora* extended with a formal privacy policy framework
+
+## Try it out!
 
 * Try the new PPF-Diaspora* pod -- https://ppf-diaspora.raulpardo.org. It runs the Diaspora* version of this repository, which implements some novel privacy policies. As usual in social networks users can define the audience of their posts, but they can also control their information when it is shared by others. In particular, a user can:
-
   * Block or hide posts to undesired audiences in which they are mentioned.
   * Block or hide posts to undesired audiences in which they are mentioned and include a location or a picture.
   * Activate *evolving privacy policies*. These are policies that are activated at concrete moments in time. We offer:
     * Within 24 hours, a user can enforce that at mosts 3 posts including his location will be published (the rests will be blocked).
     * During the weekend, a user can decide that no posts including her pictures will be published.
-
-
-
-### The distributed and open source social network Diaspora* extended with a formal privacy policy framework
 
 ## Description
 
