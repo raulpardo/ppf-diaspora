@@ -2,7 +2,7 @@
 
 ### NEWS!
 
-* Try the new PPF-Diaspora* pod -- https://ppf-diaspora.raulpardo.org. It runs the Diaspora* version of this repository, which implements some novel privacy policies. As usual in social networks users can define the audience of their posts, but they can also control their information when it is shared by others:
+* Try the new PPF-Diaspora* pod -- https://ppf-diaspora.raulpardo.org. It runs the Diaspora* version of this repository, which implements some novel privacy policies. As usual in social networks users can define the audience of their posts, but they can also control their information when it is shared by others. In particular, a user can:
 
   * Block or hide posts to undesired audiences in which they are mentioned.
   * Block or hide posts to undesired audiences in which they are mentioned and include a location or a picture.
