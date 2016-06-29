@@ -1,5 +1,3 @@
-Diaspora*
-=======
 # PPF - Diaspora*
 
 ### NEWS!
