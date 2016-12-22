@@ -14,7 +14,7 @@ describe("Diaspora.Widgets.Lightbox", function() {
     };
 
     classes = _.extend(defaults, opts);
-    
+
     var output = $('<div/>').addClass(classes.imageParent);
     _.each(photos, function(photo){
       output.append(
@@ -32,10 +32,10 @@ describe("Diaspora.Widgets.Lightbox", function() {
           )
       );
     });
-    
+
     return output;
   };
-  
+
   beforeEach(function(){
     $("#jasmine_content").html(
       '<div id="lightbox" style="display: none;">TESTCONTENT</div>' +
@@ -46,24 +46,24 @@ describe("Diaspora.Widgets.Lightbox", function() {
 
     photos = $.parseJSON(spec.readFixture("photos_json"))["photos"];
   });
-  
+
   context("opens the lightbox correctly", function() {
     var lightbox, page, photoElement;
-    
+
     beforeEach(function() {
       $("#jasmine_content").append(createDummyMarkup());
       photoElement = $('.stream-photo').first();
-      
+
       lightbox = Diaspora.BaseWidget.instantiate("Lightbox");
       $('.stream_element').delegate("a.stream-photo-link", "click", lightbox.lightboxImageClicked);
     });
-      
+
     it("shows the lightbox when a photo is clicked", function() {
       spyOn(lightbox, 'revealLightbox');
       photoElement.trigger('click');
       expect(lightbox.revealLightbox).toHaveBeenCalled();
     });
-    
+
   });
 
   context("opens lightbox for differently named elements", function(){
@@ -91,5 +91,5 @@ describe("Diaspora.Widgets.Lightbox", function() {
       expect(lightbox.revealLightbox).toHaveBeenCalled();
     });
   });
-  
+
 });

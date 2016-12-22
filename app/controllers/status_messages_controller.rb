@@ -83,7 +83,7 @@ class StatusMessagesController < ApplicationController
     end
 
     checker = Privacy::Checker.new
-    @violatedPeopleCount = checker.checkPolicies(params)
+    @violatedPeopleCount = checker.checkPolicies(params)    
 
     # Debugging - Check the user that had a violation of the policy
     if @violatedPeopleCount > 0
@@ -94,11 +94,13 @@ class StatusMessagesController < ApplicationController
       if larva_monitor && params[:location_address].present? then
         policy_handler = Privacy::Checker.new
         ppl = Diaspora::Mentionable.people_from_string(params[:status_message][:text])
+
         ppl.each do |p|
           #Check whether the user has an evolving policy activated
           evolving_location_policy = PrivacyPolicy.where(:user_id => p.owner_id,
                                                          :shareable_type => "evolving-location",
                                                          :allowed_aspect => -1).first
+
           if evolving_location_policy != nil
             #If the evolving policy is activated communicate larva
             policy_handler.send_to_larva(p.owner_id,"post","Location",-1)
@@ -118,8 +120,8 @@ class StatusMessagesController < ApplicationController
         aspects = current_user.aspects_from_ids(destination_aspect_ids)
         current_user.add_to_streams(@status_message, aspects)
         receiving_services = Service.titles(services)
-
         current_user.dispatch_post(@status_message, :url => short_post_url(@status_message.guid), :service_types => receiving_services)
+
 
         #this is done implicitly, somewhere else, but it doesnt work, says max. :'(
         @status_message.photos.each do |photo|

@@ -1,0 +1,75 @@
+{
+  "GP":"data/GP.json",
+  "authorities":[
+    {
+      "location":"GBG",
+      "attributes":["ATT1","ATT2","ATT3","ATT4"],
+      "path":"data/auth_GBG.json"
+    },
+    {
+      "location":"COP",
+      "attributes":["ATT1","ATT2","ATT3","ATT4"],
+      "path":"data/auth_COP.json"
+    },
+    {
+      "location":"OSL",
+      "attributes":["ATT1","ATT2","ATT3","ATT4"],
+      "path":"data/auth_OSL.json"
+    }
+  ],
+  "users":[
+    {
+      "gid":"gid1",
+      "path":"data/user_gid1.json",
+      "attributes":[
+        {
+        "location":"GBG",
+        "atts":["ATT1","ATT3"]
+        },
+        {
+        "location":"COP",
+        "atts":["ATT2"]
+        }
+      ],
+      "access_policy":"ATT1@GBG OR ATT3@COP"
+    },
+    {
+      "gid":"gid2",
+      "path":"data/user_gid2.json",
+      "attributes":[
+        {
+        "location":"OSL",
+        "atts":["ATT1"]
+        }
+      ],
+      "access_policy":"(ATT2@GBG AND ATT3@GBG) OR ATT3@OSL"
+    },
+    {
+      "gid":"gid3",
+      "path":"data/user_gid3.json",
+      "attributes":[
+        {
+        "location":"COP",
+        "atts":["ATT3"]
+        }
+      ],
+      "access_policy":"ATT1@COP AND ATT1@GBG"
+    },
+    {
+      "gid":"gid4",
+      "path":"user_gid4.json",
+      "attributes":[
+        {
+        "location":"COP",
+        "atts":["ATT1"]
+        },
+        {
+        "location":"OSL",
+        "atts":["ATT1","ATT2","ATT3"]
+        }
+      ],
+      "access_policy":"ATT1@GBG"
+    }
+  ]
+
+}

@@ -1,3 +1,4 @@
+//= require ../../img-selector/jquery.imgareaselect
 app.views.StreamPost = app.views.Post.extend({
   templateName: "stream-element",
   className : "stream_element loaded",
@@ -19,6 +20,9 @@ app.views.StreamPost = app.views.Post.extend({
     "click .toggle_nsfw_state": "toggleNsfwState",
 
     "click .remove_post": "destroyModel",
+
+    "click .stream-photo": "encryptPicture",
+
     "click .hide_post": "hidePost",
     "click .post_report": "report",
     "click .block_user": "blockUser"
@@ -38,6 +42,96 @@ app.views.StreamPost = app.views.Post.extend({
     this.pollView = new app.views.Poll({model : this.model});
   },
 
+  encryptPicture: function(evt) {
+    evt && evt.preventDefault();
+    const photo = this.model.get("photos")[0]; // Get the photo included in the post
+                                               // We know that there must be
+                                               // picture otherwise the event
+                                               // could not be triggered
+    let coordinates = {}; //Array to store the selected coordinates to encryt the picture
+
+    function preview(img, selection) {
+      if (!selection.width || !selection.height)
+      return;
+      // Print the current coordinates on the console
+      // console.log("Coordinates: x1: " + selection.x1 +
+      //                         " y1: " + selection.y1 +
+      //                         " x2: " + selection.x2 +
+      //                         " y2: " + selection.y2);
+      scaling_factor = photo.dimensions.width / $("#"+photo.id).width();
+      coordinates.x1 = selection.x1*scaling_factor;
+      coordinates.y1 = selection.y1*scaling_factor;
+      coordinates.x2 = selection.x2*scaling_factor;
+      coordinates.y2 = selection.y2*scaling_factor;
+    };
+
+    $("#"+photo.id).imgAreaSelect({
+      handles: true,
+      onSelectChange: preview
+    });
+
+    // =========== Popup menu to encrypt the picture ===========
+    $("#selected-area").attr("id","selected-area-"+photo.id);//Change the attribute with the id of the picture
+    $("#selected-area-"+photo.id).contextmenu(function(e) { //Bind right click
+      e.preventDefault();
+
+      // Show contextmenu
+      $(".custom-menu").finish().toggle(100).
+
+      // In the right position (the mouse)
+      css({
+        top: event.pageY + "px",
+        left: event.pageX + "px"
+      });
+    });
+
+    // If the document is clicked somewhere
+    $(document).bind("mousedown", function (e) {
+      // If the clicked element is not the menu
+      if (!$(e.target).parents(".custom-menu").length > 0) {
+        // Hide it
+        $(".custom-menu").hide(100);
+      }
+    });
+
+    function encryptImage(selection) {
+      console.log("The user would like to encrypt the following area of picture "+photo.id+":\n"+
+                              "x1: " + selection.x1 + ", " +
+                              "y1: " + selection.y1 + ", " +
+                              "x2: " + selection.x2 + ", " +
+                              "y2: " + selection.y2);
+      jQuery.ajax({
+        url: "photos/"+photo.id+"/encrypt", // it should be mapped in routes.rb in rails
+        type: "GET",
+        data: {coordinates: selection, user: "not_important"}, // if you want to send some data.
+        dataType: "json",
+        success: function(data){
+          // data will be the response object(json)
+          console.log("The picture is successfully encrypted");
+
+          // Refresh the page to fetch the updated picture after encryption
+          location.reload();
+        }
+      });
+      return;
+    };
+
+    // If the menu element is clicked
+    $(".custom-menu li").click(function(){
+
+      // This is the triggered action name
+      switch($(this).attr("data-action")) {
+
+        // A case for each action. Your actions here (one per element in the HTML form (defined at status-message_tpl))
+        case "encrypt-area": encryptImage(coordinates); break;
+        // case "second": alert("second"); break;
+        // case "third": alert("third"); break;
+      }
+
+      // Hide it AFTER the action was triggered
+      $(".custom-menu").hide(100);
+    });
+  },
 
   likesInfoView : function(){
     return new app.views.LikesInfo({model : this.model});
@@ -69,7 +163,6 @@ app.views.StreamPost = app.views.Post.extend({
     if(evt){ evt.preventDefault(); }
     app.currentUser.toggleNsfwState();
   },
-
 
   blockUser: function(evt){
     if(evt) { evt.preventDefault(); }

@@ -84,7 +84,6 @@ Diaspora::Application.routes.draw do
       get :read_all
     end
   end
-  
 
   resources :tags, :only => [:index]
 
@@ -110,7 +109,7 @@ Diaspora::Application.routes.draw do
     match 'privacy'                 => :privacy_settings, :as => 'privacy_settings'
     get 'getting_started_completed' => :getting_started_completed
     get 'confirm_email/:token'      => :confirm_email,    :as => 'confirm_email'
-  end  
+  end
 
   # This is a hack to overide a route created by devise.
   # I couldn't find anything in devise to skip that route, see Bug #961
@@ -153,6 +152,8 @@ Diaspora::Application.routes.draw do
   resources :aspect_memberships, :only  => [:destroy, :create]
   resources :share_visibilities,  :only => [:update]
   resources :blocks, :only => [:create, :destroy]
+
+  get 'photos/:id/encrypt' => 'photos#encrypt', :as => 'encrypt_picture' # =================== Added by me ===================
 
   get 'i/:id' => 'invitation_codes#show', :as => 'invite_code'
 
@@ -224,7 +225,7 @@ Diaspora::Application.routes.draw do
 
   #Statistics
   get :statistics, controller: :statistics
-  
+
   # Terms
   if AppConfig.settings.terms.enable?
     get 'terms' => 'terms#index'

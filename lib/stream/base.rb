@@ -43,7 +43,7 @@ class Stream::Base
     # -------- Original code -------------
     self.posts.for_a_stream(max_time, order, self.user).tap do |posts|
       like_posts_for_stream!(posts) #some sql person could probably do this with joins.
-    # -------- Original code -------------
+      # -------- Original code -------------
 
       # We iterate over all to posts which tentatively will be posted
       posts.each do |p|
@@ -54,7 +54,7 @@ class Stream::Base
           # not contain a location can be shown
           if p.address == nil
             returningArray.push(p)
-          # Otherwise we proceed to check
+            # Otherwise we proceed to check
           else
             # We get all the users mentioned in the post
             ppl = Diaspora::Mentionable.people_from_string(p.text)
@@ -64,15 +64,15 @@ class Stream::Base
             ppl.each do |person|
               # We check the privacy policy about the location of the user
               protecting_loc = PrivacyPolicy.where(:user_id => person.owner_id,
-                                                   :shareable_type => "Location")
+              :shareable_type => "Location")
               checker = Privacy::Checker.new
               people_disallowed = checker.people_from_aspect_ids(protecting_loc.collect{|pp| pp.allowed_aspect})
               # If we get any result it means that the users is protecting her
               # location. And (&&) also we check that the user requesting the
               # post is not the one mentioned
-              
+
               if people_disallowed.include?(self.user.person_id) && protecting_loc.first.hide
-              # if (protecting_loc != nil) && (person.owner_id != self.user.id)
+                # if (protecting_loc != nil) && (person.owner_id != self.user.id)
                 # Therefore we increment the count
                 count = count + 1
                 # returningArray.push(pTemp)
@@ -86,12 +86,58 @@ class Stream::Base
               puts "Not adding the post"
             end
           end
-        # If the author of the post is the one checking it we added to the
-        # resulset since this user already knows the information.
+          # If the author of the post is the one checking it we added to the
+          # resulset since this user already knows the information.
         else
           returningArray.push(p)
         end
       end
+    end
+
+    abe_path = 'abe-photos/'
+    decryption = true
+    if decryption
+      returningArray.each do |post|
+        if post.photos.present?
+          post.photos.each do |picture|
+            # puts "Post " + post.id.to_s + " contains picture " + picture.id.to_s
+            file = File.read(abe_path+'global_conf.json') # Open the configuration file
+            data_hash = JSON.parse(file) # Parse it to a hash object
+            data_hash['operation'] = "decrypt"
+            data_hash['image']['path'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
+            data_hash['image']['encrypted_image'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
+            data_hash['image']['decrypted_image'] = "data/decrypted.jpg"# Update path to the picture to be decrypted
+
+            File.open(abe_path+"global_conf.json","w") do |f| # Open file to write
+              f.write(JSON.pretty_generate data_hash) # Save the updated file
+            end
+
+            # TODO: Try to decrypt the picture
+            decrypted = system("python "+abe_path+"waters15.py") # Decrypting the picture \o/
+
+            # TODO: Store the decrypted picture
+            decrypted_image_name = "decrypted_" + @user.id.to_s + "_"+ picture[:unprocessed_image]
+            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/"+decrypted_image_name)
+            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/scaled_full_"+decrypted_image_name)
+            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_small_"+decrypted_image_name)
+            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_medium_"+decrypted_image_name)
+            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_large_"+decrypted_image_name)
+
+            # TODO: Update the remote_photo_name of the picture
+            if decrypted
+              puts "The picture was decrypted"
+              picture.remote_photo_name = decrypted_image_name
+            else
+              puts "The picture was NOT decrypted"
+              picture.remote_photo_name = picture[:unprocessed_image]
+            end
+          end
+        else
+          # Nothing for now
+        end
+      end
+    else
+      puts "================================================>> Decryption disabled"
     end
     returningArray
   end

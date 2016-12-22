@@ -117,6 +117,47 @@ class PhotosController < ApplicationController
     end
   end
 
+  def encrypt
+    abe_path = 'abe-photos/'
+    puts "Encrypting the picture!"
+    photo = current_user.photos.where(:id => params[:id]).first # Get the original picture
+    # current_user.retract(photo) # Delete the picture
+    file = File.read(abe_path+'global_conf.json') # Open the configuration file
+    data_hash = JSON.parse(file) # Parse it to a hash object
+
+    # TODO: Change operation to 'encrypt'
+    data_hash['operation'] = "encrypt"
+    data_hash['image']['path'] = "../public/uploads/images/" + photo[:unprocessed_image] # Update path to the picture to be encrypted
+    data_hash['image']['encrypted_image'] = "data/encrypted.jpg" # Update path to the resulting encrypted picture
+
+    coordinates = params[:coordinates]
+    data_hash['image']['encrypted_area'] = [coordinates[:y1].to_i, coordinates[:y2].to_i, coordinates[:x1].to_i, coordinates[:x2].to_i] # Update coordinates to encrypt
+
+    File.open(abe_path+"global_conf.json","w") do |f| # Open file to write
+      f.write(JSON.pretty_generate data_hash) # Save the updated file
+    end
+
+    puts system("python "+abe_path+"waters15.py") # Encrypting the picture \o/
+    system("cp "+abe_path+"data/encrypted.jpg public/uploads/images/"+photo[:unprocessed_image])
+    system("cp "+abe_path+"data/encrypted.jpg public/uploads/images/scaled_full_"+photo[:unprocessed_image])
+    system("cp "+abe_path+"data/encrypted.jpg public/uploads/images/thumb_small_"+photo[:unprocessed_image])
+    system("cp "+abe_path+"data/encrypted.jpg public/uploads/images/thumb_medium_"+photo[:unprocessed_image])
+    system("cp "+abe_path+"data/encrypted.jpg public/uploads/images/thumb_large_"+photo[:unprocessed_image])
+
+    flash[:notice] = "Picture successfully encrypted! Yeeeeeeeeaaaaaaaahhh"
+
+    file = File.read(abe_path+'data/ct.json') # Open the configuration file
+    data_hash = JSON.parse(file) # Parse it to a hash object
+    data_hash['coordinates'] = [coordinates[:y1].to_i, coordinates[:y2].to_i, coordinates[:x1].to_i, coordinates[:x2].to_i]
+    File.open(abe_path+"data/ct.json","w") do |f| # Open file to write
+      f.write(JSON.pretty_generate data_hash) # Save the updated file
+    end
+
+    respond_to do |format|
+      format.js { render :json => {picture_name: photo[:unprocessed_image]} }
+    end
+  end
+
   def update
     photo = current_user.photos.where(:id => params[:id]).first
     if photo

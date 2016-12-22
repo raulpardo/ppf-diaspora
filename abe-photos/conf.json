@@ -1,0 +1,100 @@
+{
+    "GP": "data/GP.json", 
+    "authorities": [
+        {
+            "attributes": [
+                "ATT1"
+            ], 
+            "location": "GBG", 
+            "path": "data/auth_GBG.json"
+        }, 
+        {
+            "attributes": [
+                "ATT1", 
+                "ATT2", 
+                "ATT3", 
+                "ATT4"
+            ], 
+            "location": "COP", 
+            "path": "data/auth_COP.json"
+        }, 
+        {
+            "attributes": [
+                "ATT1", 
+                "ATT2", 
+                "ATT3", 
+                "ATT4"
+            ], 
+            "location": "OSL", 
+            "path": "data/auth_OSL.json"
+        }
+    ], 
+    "users": [
+        {
+            "access_policy": "ATT1@GBG OR ATT3@COP", 
+            "attributes": [
+                {
+                    "atts": [
+                        "ATT1"
+                    ], 
+                    "location": "GBG"
+                }, 
+                {
+                    "atts": [
+                        "ATT2"
+                    ], 
+                    "location": "COP"
+                }
+            ], 
+            "gid": "gid1", 
+            "path": "data/user_gid1.json"
+        }, 
+        {
+            "access_policy": "ATT1@GBG", 
+            "attributes": [
+                {
+                    "atts": [
+                        "ATT1"
+                    ], 
+                    "location": "OSL"
+                }
+            ], 
+            "gid": "gid2", 
+            "path": "data/user_gid2.json"
+        }, 
+        {
+            "access_policy": "ATT1@COP AND ATT1@GBG", 
+            "attributes": [
+                {
+                    "atts": [
+                        "ATT3"
+                    ], 
+                    "location": "COP"
+                }
+            ], 
+            "gid": "gid3", 
+            "path": "data/user_gid3.json"
+        }, 
+        {
+            "access_policy": "ATT1@GBG", 
+            "attributes": [
+                {
+                    "atts": [
+                        "ATT1"
+                    ], 
+                    "location": "COP"
+                }, 
+                {
+                    "atts": [
+                        "ATT1", 
+                        "ATT2", 
+                        "ATT3"
+                    ], 
+                    "location": "OSL"
+                }
+            ], 
+            "gid": "gid4", 
+            "path": "user_gid4.json"
+        }
+    ]
+}

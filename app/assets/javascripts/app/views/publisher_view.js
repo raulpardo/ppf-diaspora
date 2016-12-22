@@ -75,14 +75,14 @@ app.views.Publisher = Backbone.View.extend({
       this.close();
       this.showSpinner(true);
     });
-    
+
     // open publisher on post error
     this.on('publisher:error', function() {
       this.open();
       this.showSpinner(false);
     });
 
-    // resetting the poll view 
+    // resetting the poll view
     this.on('publisher:sync', function() {
       this.view_poll_creator.render();
     });
@@ -157,7 +157,7 @@ app.views.Publisher = Backbone.View.extend({
     if(evt){ evt.preventDefault(); }
 
     // Auto-adding a poll answer always leaves an empty box when the user starts
-    // typing in the last box. We'll delete the last one to avoid submitting an 
+    // typing in the last box. We'll delete the last one to avoid submitting an
     // empty poll answer and failing validation.
     this.view_poll_creator.removeLastAnswer();
 
@@ -376,7 +376,7 @@ app.views.Publisher = Backbone.View.extend({
 
     // enable input
     this.setInputEnabled(true);
-    
+
     // enable buttons
     this.setButtonsEnabled(true);
 
@@ -426,7 +426,7 @@ app.views.Publisher = Backbone.View.extend({
     else
       this.$('#publisher_spinner').addClass('hidden');
   },
-  
+
   checkSubmitAvailability: function() {
     if( this._submittable() ) {
       this.setButtonsEnabled(true);
