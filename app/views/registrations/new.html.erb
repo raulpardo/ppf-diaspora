@@ -73,7 +73,8 @@
                 <%= t('.terms', terms_link: link_to(t('.terms_link'), terms_path, target: "_blank")).html_safe %>
               </div>
             <% end %>
-            <%= f.submit t('.continue'), :class => "new-btn", :disable_with => t('.submitting') %>
+            <!-- <%= f.submit t('.continue'), :class => "new-btn", :disable_with => t('.submitting') %> -->
+            <%= f.submit "Currently Disabled", :class => "new-btn", :disabled => true %>
         <% end %>
       </div>
     </div>

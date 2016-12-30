@@ -113,12 +113,51 @@
 				config/database.yml.example</code> for help.</p> -->
 			<!-- </div> -->
 
-			<div class="span12">
+			<!-- <div class="span12">
 				<h2>Try it out</h2>
 				<img src="assets/icons/smiley_laughing.png" />
 
 				<p>Start by <a href="users/sign_up">creating an account</a>.</p>
+			</div> -->
+
+			<div class="span12">
+				<h3>Pod temporarily setup for testing secure photo sharing using Attribute Based Encryption</h3>
+				<h5 style="text-align: left;"><u>Instructions:</u></h5>
+				<p style="text-align: left;">
+					In order to test our solution we have created 3 users: Alice, Bob and Charlie.
+					The system has an attribute universe consisting of the following attributes: friend(Alice),friend(Bob),friend(Charlie).
+					Each user has the following attributes:
+					<ul style="text-align: left;">
+						<i><b>Alice</b>: friend(Alice),friend(Bob),friend(Charlie);</i>
+						<i><b>Bob</b>: friend(Alice),friend(Bob);</i>
+						<i><b>Charlie</b>: friend(Bob),friend(Charlie).</i>
+					</ul></p>
+					<p style="text-align: left;">
+						You can login with the usernames alice, bob and charlie and password 123456.
+						To login click on the botton in top right corner of the page.
+						To encrypt a picture, first click twice on a photo from the stream of posts.
+						Secondly, click a hold to select the area you want to encrypt.
+						Thirdly, right click on the selected area.
+						Note that currently users can only use one attribute to encrypt their photos.
+						In particular, user x can encrypt with the attribute friend(x), e.g., Alice can only encrypt with the attribute friend(Alice).
+						Any user that is a friends with Alice has this attribute.
+						The connection between users are as follows:
+						<ul style="text-align: left;">
+							<i><b>Alice</b> marked Bob as a friend and Charlie as family</i>
+							<i><b>Bob</b> marked Alice and Charlie as friends;</i>
+							<i><b>Charlie</b> marked Alice as friend and Bob as family.</i>
+						</ul></p>
+						<p style="text-align: left;">
+							Note that the attributes about are given according to the friend connection.
+							Currently it is not possible to update the attributes of the users, i.e., it is not possible to create or remove friendship connections or add new users.
+						</p>
+
+
 			</div>
+
+
+
+
 			<div class="span12">
 				<br>
 				<br>

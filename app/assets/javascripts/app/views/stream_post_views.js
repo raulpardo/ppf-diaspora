@@ -48,7 +48,7 @@ app.views.StreamPost = app.views.Post.extend({
                                                // We know that there must be
                                                // picture otherwise the event
                                                // could not be triggered
-    let coordinates = {}; //Array to store the selected coordinates to encryt the picture
+    var coordinates = {}; //Array to store the selected coordinates to encryt the picture
 
     function preview(img, selection) {
       if (!selection.width || !selection.height)
