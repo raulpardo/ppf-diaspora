@@ -80,8 +80,8 @@ app.views.StreamPost = app.views.Post.extend({
 
       // In the right position (the mouse)
       css({
-        top: event.pageY + "px",
-        left: event.pageX + "px"
+        top: e.pageY + "px",
+        left: e.pageX + "px"
       });
     });
 

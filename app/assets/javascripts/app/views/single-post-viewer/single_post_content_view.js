@@ -9,6 +9,7 @@ app.views.SinglePostContent = app.views.Base.extend({
     ".opengraph" : "openGraphView",
     ".status-message-location" : "postLocationStreamView",
     '.poll': 'pollView',
+    '.photo-link' : 'something',
   },
 
   initialize : function() {
@@ -17,6 +18,10 @@ app.views.SinglePostContent = app.views.Base.extend({
     this.openGraphView = new app.views.OpenGraph({model : this.model});
     this.postContentView = new app.views.ExpandedStatusMessage({model: this.model});
     this.pollView = new app.views.Poll({ model: this.model });
+  },
+
+  something : function() {
+    alert("You've clicked something");
   },
 
   postLocationStreamView : function(){

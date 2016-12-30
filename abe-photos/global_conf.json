@@ -1,17 +1,17 @@
 {
   "operation": "decrypt",
   "_comments": "init, encrypt, decrypt",
-  "user_decrypt": "gid1",
+  "user_decrypt": "1",
   "image": {
     "ct": "data/ct.json",
-    "path": "../public/uploads/images/cbf63150c9ebe60ca8b3.jpg",
+    "path": "data/decrypted.jpg",
     "encrypted_area": [
-      0,
+      223,
       270,
-      129,
+      131,
       250
     ],
-    "encrypted_image": "../public/uploads/images/cbf63150c9ebe60ca8b3.jpg",
+    "encrypted_image": "data/decrypted.jpg",
     "decrypted_image": "data/decrypted.jpg",
     "_comments": "[pixeles_verticales_top, pixeles_verticales_bottom, pixeles_horizontales_left ,pixeles_horizontales_right]"
   }

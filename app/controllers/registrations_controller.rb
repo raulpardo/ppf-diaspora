@@ -17,6 +17,66 @@ class RegistrationsController < Devise::RegistrationsController
       @user.seed_aspects
       sign_in_and_redirect(:user, @user)
       Rails.logger.info("event=registration status=successful user=#{@user.diaspora_handle}")
+
+      # TODO: Make sure that the following code is data race free!!!
+      # ================================== ADDED FOR ABE PURPOSES -- EXECUTING KEYGEN ===============================
+      # Getting pod name
+      pod_name = @user.diaspora_handle.split('@')[1].split(":").join.upcase
+      # Add user handle and access policy to conf.json --- ABE photos support
+      abe_path = 'abe-photos/'
+      file = File.read(abe_path+'conf.json') # Open the configuration file
+      data_hash = JSON.parse(file) # Parse it to a hash object
+      new_user = {"gid" => @user.id.to_s,
+                  "path" => "data/user_"+@user.id.to_s+".json",
+                  "attributes" => [{
+                                      "atts" => ["FRIENDS"+@user.username.to_s.upcase],
+                                      "location" => pod_name
+                                   }],
+                  "access_policy" => "FRIENDS"+@user.username.to_s.upcase+"@"+pod_name}
+      data_hash['users'].push(new_user)
+
+
+      # Add all authorities and attributes from the know people in the pod
+      Person.pluck(:diaspora_handle).each do |dh|
+        username_and_pod = dh.split('@')
+        person_username = username_and_pod[0].upcase
+        person_pod_name = username_and_pod[1].split(":").join.upcase
+
+        included_in_conf = false
+
+        data_hash['authorities'].each do |auth|
+          if auth['location'] == person_pod_name
+            if !auth['attributes'].include?("FRIENDS"+person_username) # If the user was not already inluded
+              auth['attributes'].push("FRIENDS"+person_username)
+            end
+            included_in_conf = true # Flag to check whether the authority is in conf.json
+          end
+        end
+
+        if !included_in_conf
+          data_hash['authorities'].push({"attributes" => ["FRIENDS"+person_username],
+                                         "location" => person_pod_name,
+                                         "path" => "data/auth_"+person_pod_name+".json"})
+        end
+      end
+
+      File.open(abe_path+"conf.json","w") do |f| # Open file to write
+        f.write(JSON.pretty_generate data_hash) # Save the updated file
+      end
+      # Add user handle and access policy to conf.json --- ABE photos support
+
+      # Erase the data folder and create new info -- KeyGen
+      system("rm -rf "+abe_path+"data/*")
+      file = File.read(abe_path+'global_conf.json') # Open the configuration file
+      data_hash = JSON.parse(file) # Parse it to a hash object
+      data_hash['operation'] = "init"
+      data_hash['user_decrypt'] = @user.id.to_s
+      File.open(abe_path+"global_conf.json","w") do |f| # Open file to write
+        f.write(JSON.pretty_generate data_hash) # Save the updated file
+      end
+      system("python "+abe_path+"waters15.py") # Generating keys
+      # ================================== ADDED FOR ABE PURPOSES -- EXECUTING KEYGEN ===============================
+
     else
       @user.errors.delete(:person)
 

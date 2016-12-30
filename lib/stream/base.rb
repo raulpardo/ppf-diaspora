@@ -101,35 +101,65 @@ class Stream::Base
         if post.photos.present?
           post.photos.each do |picture|
             # puts "Post " + post.id.to_s + " contains picture " + picture.id.to_s
-            file = File.read(abe_path+'global_conf.json') # Open the configuration file
-            data_hash = JSON.parse(file) # Parse it to a hash object
-            data_hash['operation'] = "decrypt"
-            data_hash['image']['path'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
-            data_hash['image']['encrypted_image'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
-            data_hash['image']['decrypted_image'] = "data/decrypted.jpg"# Update path to the picture to be decrypted
+            decrypted = false
+            # Check whether the picture has been encrypted
+            if File.file?(abe_path+"img-encryptions/"+picture[:unprocessed_image]+".json")
+              path_picture_encryptions = abe_path+"img-encryptions/"+picture[:unprocessed_image]+".json"
+              file = File.read(path_picture_encryptions) # Open the configuration file
+              data_hash = JSON.parse(file)
+              # We try to decrypt for each ct of the picture
+              result = false
+              data_hash['cts'].each do |ct|
+                file = File.read(abe_path+'global_conf.json') # Open the configuration file
+                data_hash = JSON.parse(file) # Parse it to a hash object
 
-            File.open(abe_path+"global_conf.json","w") do |f| # Open file to write
-              f.write(JSON.pretty_generate data_hash) # Save the updated file
-            end
 
-            # TODO: Try to decrypt the picture
-            decrypted = system("python "+abe_path+"waters15.py") # Decrypting the picture \o/
+                data_hash['operation'] = "decrypt" # Update operation to perform
+                data_hash['user_decrypt'] = self.user.id.to_s # Update User id
+                data_hash['image']['encrypted_area'] = ct['coordinates'] # Update coordinates
 
-            # TODO: Store the decrypted picture
-            decrypted_image_name = "decrypted_" + @user.id.to_s + "_"+ picture[:unprocessed_image]
-            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/"+decrypted_image_name)
-            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/scaled_full_"+decrypted_image_name)
-            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_small_"+decrypted_image_name)
-            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_medium_"+decrypted_image_name)
-            system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_large_"+decrypted_image_name)
+                # Update ct file
+                File.open(abe_path+"data/ct.json","w") do |f| # Open file to write
+                  f.write(JSON.pretty_generate ct) # Save the updated file
+                end
 
-            # TODO: Update the remote_photo_name of the picture
-            if decrypted
-              puts "The picture was decrypted"
-              picture.remote_photo_name = decrypted_image_name
+                if result
+                  data_hash['image']['path'] = "data/decrypted.jpg"# Update path to the encrypted picture
+                  data_hash['image']['encrypted_image'] = "data/decrypted.jpg" # Update path to the encrypted picture
+                else
+                  data_hash['image']['path'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
+                  data_hash['image']['encrypted_image'] = "../public/uploads/images/" + picture[:unprocessed_image] # Update path to the encrypted picture
+                end
+                data_hash['image']['decrypted_image'] = "data/decrypted.jpg" # Update path to the picture to be decrypted
+
+                # Save the settings for decryption
+                File.open(abe_path+"global_conf.json","w") do |f| # Open file to write
+                  f.write(JSON.pretty_generate data_hash) # Save the updated file
+                end
+
+                # TODO: Try to decrypt the picture
+                result = system("python "+abe_path+"waters15.py") # Decrypting the picture \o/
+                puts "The decryption was " + (result ? "successful" : "NOT successful")
+                decrypted = decrypted || result
+              end
+              # TODO: Store the decrypted picture
+              decrypted_image_name = "decrypted_" + @user.id.to_s + "_"+ picture[:unprocessed_image]
+              system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/"+decrypted_image_name)
+              system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/scaled_full_"+decrypted_image_name)
+              system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_small_"+decrypted_image_name)
+              system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_medium_"+decrypted_image_name)
+              system("cp "+abe_path+"data/decrypted.jpg public/uploads/images/thumb_large_"+decrypted_image_name)
+
+              # TODO: Update the remote_photo_name of the picture
+              if decrypted
+                puts "The picture was decrypted"
+                picture.remote_photo_name = decrypted_image_name
+              else
+                puts "The picture was NOT decrypted"
+                picture.remote_photo_name = picture[:unprocessed_image]
+              end
             else
-              puts "The picture was NOT decrypted"
-              picture.remote_photo_name = picture[:unprocessed_image]
+              # If not encrypted we do nothing
             end
           end
         else

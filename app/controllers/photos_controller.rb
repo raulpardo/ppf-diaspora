@@ -119,14 +119,15 @@ class PhotosController < ApplicationController
 
   def encrypt
     abe_path = 'abe-photos/'
-    puts "Encrypting the picture!"
-    photo = current_user.photos.where(:id => params[:id]).first # Get the original picture
+    puts "Encrypting the picture!"    
+    photo = Photo.where(:id => params[:id]).first
     # current_user.retract(photo) # Delete the picture
     file = File.read(abe_path+'global_conf.json') # Open the configuration file
     data_hash = JSON.parse(file) # Parse it to a hash object
 
     # TODO: Change operation to 'encrypt'
     data_hash['operation'] = "encrypt"
+    data_hash['user_decrypt'] = current_user.id.to_s
     data_hash['image']['path'] = "../public/uploads/images/" + photo[:unprocessed_image] # Update path to the picture to be encrypted
     data_hash['image']['encrypted_image'] = "data/encrypted.jpg" # Update path to the resulting encrypted picture
 
@@ -147,10 +148,28 @@ class PhotosController < ApplicationController
     flash[:notice] = "Picture successfully encrypted! Yeeeeeeeeaaaaaaaahhh"
 
     file = File.read(abe_path+'data/ct.json') # Open the configuration file
-    data_hash = JSON.parse(file) # Parse it to a hash object
-    data_hash['coordinates'] = [coordinates[:y1].to_i, coordinates[:y2].to_i, coordinates[:x1].to_i, coordinates[:x2].to_i]
+    photo_ct = JSON.parse(file) # Parse it to a hash object
+    photo_ct['coordinates'] = [coordinates[:y1].to_i, coordinates[:y2].to_i, coordinates[:x1].to_i, coordinates[:x2].to_i]
     File.open(abe_path+"data/ct.json","w") do |f| # Open file to write
-      f.write(JSON.pretty_generate data_hash) # Save the updated file
+      f.write(JSON.pretty_generate photo_ct) # Save the updated file
+    end
+
+
+    # Add ct to img encryptions
+    path_img_encryptions = abe_path+"img-encryptions/"+photo[:unprocessed_image]+".json"
+    photo_encryptions = {}
+    if File.file?(path_img_encryptions) # If the img was encrypted before just add it
+      file = File.read(path_img_encryptions)
+      photo_encryptions = JSON.parse(file)
+      photo_encryptions["cts"].push(photo_ct)
+    else # Otherwise create a new list
+      photo_encryptions = {
+        "cts" => [photo_ct]
+      }
+    end
+    # Save img encryption
+    File.open(path_img_encryptions,"w") do |f| # Open file to write
+      f.write(JSON.pretty_generate photo_encryptions)
     end
 
     respond_to do |format|

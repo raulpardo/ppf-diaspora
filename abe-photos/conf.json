@@ -1,100 +1,135 @@
 {
-    "GP": "data/GP.json", 
-    "authorities": [
+  "GP": "data/GP.json",
+  "authorities": [
+    {
+      "attributes": [
+        "ATT1"
+      ],
+      "location": "GBG",
+      "path": "data/auth_GBG.json"
+    },
+    {
+      "attributes": [
+        "ATT1",
+        "ATT2",
+        "ATT3",
+        "ATT4"
+      ],
+      "location": "COP",
+      "path": "data/auth_COP.json"
+    },
+    {
+      "attributes": [
+        "ATT1",
+        "ATT2",
+        "ATT3",
+        "ATT4"
+      ],
+      "location": "OSL",
+      "path": "data/auth_OSL.json"
+    },
+    {
+      "attributes": [
+        "FRIENDSPARDO",
+        "FRIENDSGERARDO"
+      ],
+      "location": "LOCALHOST3000",
+      "path": "data/auth_LOCALHOST3000.json"
+    }
+  ],
+  "users": [
+    {
+      "access_policy": "ATT1@GBG OR ATT3@COP",
+      "attributes": [
         {
-            "attributes": [
-                "ATT1"
-            ], 
-            "location": "GBG", 
-            "path": "data/auth_GBG.json"
-        }, 
+          "atts": [
+            "ATT1"
+          ],
+          "location": "GBG"
+        },
         {
-            "attributes": [
-                "ATT1", 
-                "ATT2", 
-                "ATT3", 
-                "ATT4"
-            ], 
-            "location": "COP", 
-            "path": "data/auth_COP.json"
-        }, 
-        {
-            "attributes": [
-                "ATT1", 
-                "ATT2", 
-                "ATT3", 
-                "ATT4"
-            ], 
-            "location": "OSL", 
-            "path": "data/auth_OSL.json"
+          "atts": [
+            "ATT2"
+          ],
+          "location": "COP"
         }
-    ], 
-    "users": [
+      ],
+      "gid": "gid1",
+      "path": "data/user_gid1.json"
+    },
+    {
+      "access_policy": "ATT1@GBG",
+      "attributes": [
         {
-            "access_policy": "ATT1@GBG OR ATT3@COP", 
-            "attributes": [
-                {
-                    "atts": [
-                        "ATT1"
-                    ], 
-                    "location": "GBG"
-                }, 
-                {
-                    "atts": [
-                        "ATT2"
-                    ], 
-                    "location": "COP"
-                }
-            ], 
-            "gid": "gid1", 
-            "path": "data/user_gid1.json"
-        }, 
-        {
-            "access_policy": "ATT1@GBG", 
-            "attributes": [
-                {
-                    "atts": [
-                        "ATT1"
-                    ], 
-                    "location": "OSL"
-                }
-            ], 
-            "gid": "gid2", 
-            "path": "data/user_gid2.json"
-        }, 
-        {
-            "access_policy": "ATT1@COP AND ATT1@GBG", 
-            "attributes": [
-                {
-                    "atts": [
-                        "ATT3"
-                    ], 
-                    "location": "COP"
-                }
-            ], 
-            "gid": "gid3", 
-            "path": "data/user_gid3.json"
-        }, 
-        {
-            "access_policy": "ATT1@GBG", 
-            "attributes": [
-                {
-                    "atts": [
-                        "ATT1"
-                    ], 
-                    "location": "COP"
-                }, 
-                {
-                    "atts": [
-                        "ATT1", 
-                        "ATT2", 
-                        "ATT3"
-                    ], 
-                    "location": "OSL"
-                }
-            ], 
-            "gid": "gid4", 
-            "path": "user_gid4.json"
+          "atts": [
+            "ATT1"
+          ],
+          "location": "OSL"
         }
-    ]
+      ],
+      "gid": "gid2",
+      "path": "data/user_gid2.json"
+    },
+    {
+      "access_policy": "ATT1@COP AND ATT1@GBG",
+      "attributes": [
+        {
+          "atts": [
+            "ATT3"
+          ],
+          "location": "COP"
+        }
+      ],
+      "gid": "gid3",
+      "path": "data/user_gid3.json"
+    },
+    {
+      "access_policy": "ATT1@GBG",
+      "attributes": [
+        {
+          "atts": [
+            "ATT1"
+          ],
+          "location": "COP"
+        },
+        {
+          "atts": [
+            "ATT1",
+            "ATT2",
+            "ATT3"
+          ],
+          "location": "OSL"
+        }
+      ],
+      "gid": "gid4",
+      "path": "user_gid4.json"
+    },
+    {
+      "gid": "1",
+      "path": "data/user_1.json",
+      "attributes": [
+        {
+          "atts": [
+            "FRIENDSPARDO",
+            "FRIENDSGERARDO"
+          ],
+          "location": "LOCALHOST3000"
+        }
+      ],
+      "access_policy": "FRIENDSPARDO@LOCALHOST3000"
+    },
+    {
+      "gid": "2",
+      "path": "data/user_2.json",
+      "attributes": [
+        {
+          "atts": [
+            "FRIENDSGERARDO"
+          ],
+          "location": "LOCALHOST3000"
+        }
+      ],
+      "access_policy": "FRIENDSGERARDO@LOCALHOST3000"
+    }
+  ]
 }

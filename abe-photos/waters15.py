@@ -358,7 +358,11 @@ if __name__ == "__main__":
             subimage = get_subimage(global_conf['image']['path'],global_conf['image']['encrypted_area'],global_conf['image']['encrypted_image'])
             print b'%s' %subimage
 
-            policy_str = test.conf_file['users'][1]['access_policy']
+            for us in test.conf_file['users']:
+                if us['gid'] == global_conf['user_decrypt']:
+                    policy_str = us['access_policy']
+            # policy_str = test.conf_file['users'][1]['access_policy']
+
             msg = subimage.tobytes()
 
             print 'ENCRYPTING'
